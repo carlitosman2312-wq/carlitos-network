@@ -9,6 +9,7 @@
 #include <key_io.h>
 #include <streams.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <util/bip32.h>
 #include <util/strencodings.h>
 
@@ -158,7 +159,11 @@ void RunTest(const TestVector& test)
 
 }  // namespace
 
-BOOST_FIXTURE_TEST_SUITE(bip32_tests, BasicTestingSetup)
+struct CarlitosBIP32TestingSetup : BasicTestingSetup {
+    CarlitosBIP32TestingSetup() : BasicTestingSetup{ChainType::MAIN} {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(bip32_tests, CarlitosBIP32TestingSetup)
 
 BOOST_AUTO_TEST_CASE(bip32_test1) {
     RunTest(test1);

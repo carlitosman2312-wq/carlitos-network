@@ -6,6 +6,7 @@
 #include <common/signmessage.h>
 #include <compat/compat.h>
 #include <hash.h>
+#include <kernel/chainparams.h>
 #include <key.h>
 #include <script/parsing.h>
 #include <span.h>
@@ -1547,6 +1548,8 @@ BOOST_AUTO_TEST_CASE(message_sign)
 
 BOOST_AUTO_TEST_CASE(message_verify)
 {
+    // Test addresses use Carlitos mainnet Base58 prefixes.
+    SelectParams(ChainType::MAIN);
     BOOST_CHECK_EQUAL(
         MessageVerify(
             "invalid address",
@@ -1595,6 +1598,7 @@ BOOST_AUTO_TEST_CASE(message_verify)
             "IIcaIENoYW5jZWxsb3Igb24gYnJpbmsgb2Ygc2Vjb25kIGJhaWxvdXQgZm9yIGJhbmtzIAaHRtbCeDZINyavx14=",
             "Trust me"),
         MessageVerificationResult::OK);
+    SelectParams(ChainType::BITCOIN_MAIN_TEST);
 }
 
 BOOST_AUTO_TEST_CASE(message_hash)

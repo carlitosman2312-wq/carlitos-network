@@ -4,6 +4,7 @@
 
 #include <core_io.h>
 #include <interfaces/chain.h>
+#include <kernel/chainparams.h>
 #include <node/context.h>
 #include <rpc/blockchain.h>
 #include <rpc/client.h>
@@ -228,6 +229,8 @@ BOOST_AUTO_TEST_CASE(rpc_togglenetwork)
 
 BOOST_AUTO_TEST_CASE(rpc_rawsign)
 {
+    // These private keys and destination use Carlitos mainnet encodings.
+    SelectParams(ChainType::MAIN);
     UniValue r;
     // input is a 1-of-2 multisig (so is output):
     std::string prevout =
@@ -243,6 +246,7 @@ BOOST_AUTO_TEST_CASE(rpc_rawsign)
     BOOST_CHECK(r.get_obj().find_value("complete").get_bool() == false);
     r = CallRPC(std::string("signrawtransactionwithkey ")+notsigned+" ["+privkey1+","+privkey2+"] "+prevout);
     BOOST_CHECK(r.get_obj().find_value("complete").get_bool() == true);
+    SelectParams(ChainType::BITCOIN_MAIN_TEST);
 }
 
 BOOST_AUTO_TEST_CASE(rpc_createraw_op_return)

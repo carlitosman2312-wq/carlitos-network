@@ -6,6 +6,7 @@
 #include <script/descriptor.h>
 #include <script/sign.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <util/check.h>
 #include <util/strencodings.h>
 #include <util/string.h>
@@ -603,7 +604,11 @@ void CheckInferDescriptor(const std::string& script_hex, const std::string& expe
 
 }
 
-BOOST_FIXTURE_TEST_SUITE(descriptor_tests, BasicTestingSetup)
+struct CarlitosDescriptorTestingSetup : BasicTestingSetup {
+    CarlitosDescriptorTestingSetup() : BasicTestingSetup{ChainType::MAIN} {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(descriptor_tests, CarlitosDescriptorTestingSetup)
 
 BOOST_AUTO_TEST_CASE(descriptor_test)
 {

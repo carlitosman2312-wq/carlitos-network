@@ -16,6 +16,7 @@
 #include <test/util/common.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <uint256.h>
 #include <util/strencodings.h>
 
@@ -27,6 +28,7 @@ using namespace util::hex_literals;
 
 namespace bloom_tests {
 struct BloomTest : public BasicTestingSetup {
+    BloomTest() : BasicTestingSetup{ChainType::MAIN} {}
     std::vector<unsigned char> RandomData();
 };
 } // namespace bloom_tests

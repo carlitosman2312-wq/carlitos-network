@@ -11,6 +11,7 @@
 #include <test/data/bip341_wallet_vectors.json.h>
 #include <test/util/common.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <univalue.h>
 #include <util/check.h>
 #include <util/strencodings.h>
@@ -19,7 +20,11 @@
 
 using namespace util::hex_literals;
 
-BOOST_FIXTURE_TEST_SUITE(script_standard_tests, BasicTestingSetup)
+struct CarlitosScriptStandardTestingSetup : BasicTestingSetup {
+    CarlitosScriptStandardTestingSetup() : BasicTestingSetup{ChainType::MAIN} {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(script_standard_tests, CarlitosScriptStandardTestingSetup)
 
 BOOST_AUTO_TEST_CASE(dest_default_is_no_dest)
 {

@@ -8,6 +8,7 @@
 #include <key_io.h>
 #include <musig.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <util/strencodings.h>
 #include <crypto/hex_base.h>
 
@@ -22,7 +23,11 @@ struct BIP328TestVector {
     std::string expected_aggregate_xpub;
 };
 
-BOOST_FIXTURE_TEST_SUITE(bip328_tests, BasicTestingSetup)
+struct CarlitosBIP328TestingSetup : BasicTestingSetup {
+    CarlitosBIP328TestingSetup() : BasicTestingSetup{ChainType::MAIN} {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(bip328_tests, CarlitosBIP328TestingSetup)
 
 BOOST_AUTO_TEST_CASE(valid_keys)
 {

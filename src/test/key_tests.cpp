@@ -12,6 +12,7 @@
 #include <test/util/common.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <uint256.h>
 #include <util/strencodings.h>
 #include <util/string.h>
@@ -36,7 +37,11 @@ static const std::string addr2C = "CTtcbLKQtFW3tR4x2ADdqrbiJVfZQD9cFm";
 static const std::string strAddressBad = "1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 
 
-BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
+struct CarlitosKeyTestingSetup : BasicTestingSetup {
+    CarlitosKeyTestingSetup() : BasicTestingSetup{ChainType::MAIN} {}
+};
+
+BOOST_FIXTURE_TEST_SUITE(key_tests, CarlitosKeyTestingSetup)
 
 BOOST_AUTO_TEST_CASE(key_test1)
 {
