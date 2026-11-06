@@ -28,7 +28,8 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
         node = subprocess.Popen([
             str(DAEMON), "-chain=carlitosregtest", f"-datadir={data}", "-server=1",
             "-daemon=0", "-listen=0", "-discover=0", "-dnsseed=0", "-fixedseeds=0",
-            "-upnp=0", "-natpmp=0", "-fallbackfee=0.0001", "-printtoconsole=1",
+            # Bitcoin Core v29+ removed -upnp; -natpmp=0 disables PCP/NAT-PMP.
+            "-natpmp=0", "-fallbackfee=0.0001", "-printtoconsole=1",
         ], stdout=log, stderr=subprocess.STDOUT)
         try:
             for _ in range(90):
@@ -63,7 +64,7 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
             transaction = json.loads(rpc("gettransaction", txid, wallet=True))
             assert transaction["confirmations"] >= 1, transaction
             assert json.loads(rpc("getblockchaininfo"))["blocks"] == 103
-            print("PASS: Carlitos regtest node, RPC, wallet, tcrl address, 100-block maturity, mining, and confirmed spend")
+            print("PASS: Carlitos regtest node, RPC, wallet, rcrl address, 100-block maturity, mining, and confirmed spend")
         except Exception:
             log.flush()
             log.seek(0)
