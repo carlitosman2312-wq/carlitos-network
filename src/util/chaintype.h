@@ -17,6 +17,7 @@ enum class ChainType {
     TESTNET4,
     CARLITOS_TESTNET,
     CARLITOS_REGTEST,
+    BITCOIN_MAIN_TEST,
 };
 
 std::string ChainTypeToString(ChainType chain);
