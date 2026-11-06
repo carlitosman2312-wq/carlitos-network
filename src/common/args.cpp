@@ -158,6 +158,7 @@ std::list<SectionInfo> ArgsManager::GetUnrecognizedSections() const
         ChainTypeToString(ChainType::TESTNET),
         ChainTypeToString(ChainType::TESTNET4),
         ChainTypeToString(ChainType::MAIN),
+        ChainTypeToString(ChainType::BITCOIN_MAIN_TEST),
     };
 
     LOCK(cs_args);
