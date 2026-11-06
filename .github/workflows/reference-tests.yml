@@ -6,6 +6,14 @@ on:
   pull_request:
     branches: [main]
 
+# Avoid running stale reference-test jobs repeatedly for the same PR/ref.
+concurrency:
+  group: carlitos-reference-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
