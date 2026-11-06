@@ -22,6 +22,8 @@ std::string ChainTypeToString(ChainType chain)
         return "signet";
     case ChainType::REGTEST:
         return "regtest";
+    case ChainType::CARLITOS_TESTNET:
+        return "carlitostestnet";
     case ChainType::CARLITOS_REGTEST:
         return "carlitosregtest";
     }
@@ -40,6 +42,8 @@ std::optional<ChainType> ChainTypeFromString(std::string_view chain)
         return ChainType::SIGNET;
     } else if (chain == "regtest") {
         return ChainType::REGTEST;
+    } else if (chain == "carlitostestnet") {
+        return ChainType::CARLITOS_TESTNET;
     } else if (chain == "carlitosregtest") {
         return ChainType::CARLITOS_REGTEST;
     } else {

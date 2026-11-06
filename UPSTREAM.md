@@ -16,7 +16,9 @@ The full v32.1 source tree was fetched from the official upstream repository and
 - src/consensus/params.h: configurable initial subsidy and first reward height with Bitcoin-compatible defaults for inherited chain types.
 - src/consensus/amount.h: MAX_MONEY increased to the 100,000,000 CRLTS protocol ceiling.
 - src/validation.cpp: subsidy calculation in integer base units.
-- src/util/chaintype.*, src/chainparams.*, src/kernel/chainparams.*, src/bitcoin-cli.cpp, src/qt/guiutil.cpp: dedicated carlitosregtest chain type, isolated from Bitcoin regtest.
+- src/util/chaintype.*, src/chainparams.*, src/kernel/chainparams.*, src/bitcoin-cli.cpp, src/qt/guiutil.cpp: dedicated carlitostestnet (public testnet parameters) and carlitosregtest (local instant-mining) chain types, isolated from Bitcoin's networks.
+- src/kernel/chainparams.cpp: custom BIP32 extended-key serialization versions for Carlitos mainnet, public testnet, and regtest; all are distinct from Bitcoin's xpub/xprv versions.
+- .github/workflows/ci.yml: the original large Bitcoin Core cross-platform CI matrix is preserved at contrib/upstream/bitcoin-core-ci.yml, outside GitHub's active workflow directory, so the fork runs its focused Carlitos validation workflows instead.
 - src/common/args.cpp, src/init.cpp, src/clientversion.cpp, CMakeLists.txt: Carlitos client identity, configuration name, PID file, and separate default data directory.
 - src/test/validation_tests.cpp: reward boundary, total issuance, mainnet parameter/genesis, and development-network tests.
 - .github/workflows/native-build.yml: Linux CI build and targeted native consensus smoke suite.
@@ -36,7 +38,7 @@ The full v32.1 source tree was fetched from the official upstream repository and
 1. Run the adapted full C++ suite on Linux CI, verify the chain-aware test fixture changes, and fix any remaining failures (notably the BIP324 crypto-vector suite if reproducible).
 2. Obtain a trusted build environment where the node executable is permitted to run; test startup, RPC, wallet creation, block generation, coinbase maturity, sends, P2P, reorganizations, restart, and recovery.
 3. Mainnet BIP32 extended-key bytes are now distinct (043c524c / 043c5350) and their vectors were migrated, but those custom bytes are provisional and need SLIP-0132 registration. Design a compatible wallet derivation scheme, implement a BIP44-capable wallet path if desired, then request a SLIP-0044 coin type; verify imports cannot confuse Bitcoin and Carlitos keys.
-4. Define independent DNS seed operators and launch a multi-node public testnet.
+4. Deploy multiple independent `carlitostestnet` nodes, register DNS seed operators, and validate cross-operator mining, retargeting, reorgs, and wallet interoperability.
 5. Obtain independent consensus/security audits, especially of PoW attack economics and difficulty adjustment.
 6. Publish reproducible binaries, checksums, release notes, and node/wallet operator documentation only after the preceding gates pass.
 

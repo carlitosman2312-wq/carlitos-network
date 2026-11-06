@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
             assert info["blocks"] == 0, info
             rpc("createwallet", "smoke-wallet")
             mining_address = rpc("getnewaddress", "", "bech32", wallet=True)
-            assert mining_address.startswith("tcrl1"), mining_address
+            assert mining_address.startswith("rcrl1"), mining_address
 
             rpc("generatetoaddress", "100", mining_address)
             balance_100 = Decimal(rpc("getbalance", wallet=True))

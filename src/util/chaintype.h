@@ -15,6 +15,7 @@ enum class ChainType {
     SIGNET,
     REGTEST,
     TESTNET4,
+    CARLITOS_TESTNET,
     CARLITOS_REGTEST,
 };
 

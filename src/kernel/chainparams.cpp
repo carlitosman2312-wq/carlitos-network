@@ -200,6 +200,80 @@ public:
 };
 
 /**
+ * Carlitos public test network. This is a separate chain from Bitcoin testnet
+ * and from the local instant-mining carlitosregtest network.
+ */
+class CCarlitosTestNetParams : public CChainParams {
+public:
+    explicit CCarlitosTestNetParams(const TestNetOptions& opts)
+    {
+        m_chain_type = ChainType::CARLITOS_TESTNET;
+        consensus.signet_blocks = false;
+        consensus.signet_challenge.clear();
+        consensus.nSubsidyHalvingInterval = 500000;
+        consensus.nInitialSubsidy = 100 * COIN;
+        consensus.nFirstRewardHeight = 1;
+        consensus.BIP34Height = 1;
+        consensus.BIP34Hash = uint256{};
+        consensus.BIP65Height = 1;
+        consensus.BIP66Height = 1;
+        consensus.CSVHeight = 1;
+        consensus.SegwitHeight = 0;
+        consensus.MinBIP9WarningHeight = 0;
+        consensus.powLimit = uint256{"000000ffff000000000000000000000000000000000000000000000000000000"};
+        consensus.nPowTargetTimespan = 14 * 24 * 60 * 60;
+        consensus.nPowTargetSpacing = 10 * 60;
+        // Permit minimum-difficulty blocks after long idle periods, but keep
+        // normal retargeting enabled so the public testnet exercises the DAA.
+        consensus.fPowAllowMinDifficultyBlocks = true;
+        consensus.enforce_BIP94 = false;
+        consensus.fPowNoRetargeting = false;
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].threshold = 1815;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].period = 2016;
+        ApplyDeploymentOptions(opts.dep_opts);
+
+        // No Bitcoin chainwork, assume-valid hash, snapshots, or checkpoints apply.
+        consensus.nMinimumChainWork = uint256{};
+        consensus.defaultAssumeValid = uint256{};
+
+        pchMessageStart[0] = 0xc3;
+        pchMessageStart[1] = 0x4c;
+        pchMessageStart[2] = 0x54;
+        pchMessageStart[3] = 0x4e;
+        nDefaultPort = 48444;
+        nPruneAfterHeight = 1000;
+        m_assumed_blockchain_size = 0;
+        m_assumed_chain_state_size = 0;
+
+        genesis = CreateGenesisBlock(1793923201, 11266668, 0x1e00ffff, 1, 0 * COIN,
+                                     "Carlitos Public Testnet | For development only.");
+        consensus.hashGenesisBlock = genesis.GetHash();
+        assert(consensus.hashGenesisBlock == uint256{"0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7"});
+        assert(genesis.hashMerkleRoot == uint256{"84daa1dedd3c0a686ed59904473d6a68c55524711ea76b22dd9ed99a1b0f706b"});
+
+        vFixedSeeds.clear();
+        vSeeds.clear(); // Bootstrap manually until independent seed operators are provisioned.
+        fDefaultConsistencyChecks = false;
+        m_is_mockable_chain = false;
+        m_assumeutxo_data.clear();
+        chainTxData = ChainTxData{.nTime = 0, .tx_count = 0, .dTxRate = 0};
+        m_headers_sync_params = HeadersSyncParams{};
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 30);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 52);
+        base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 158);
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x3C, 0x54, 0x4C};
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x3C, 0x55, 0x50};
+        bech32_hrp = "tcrl";
+    }
+};
+
+/**
  * Testnet (v3): public test network which is reset from time to time.
  */
 class CTestNetParams : public CChainParams {
@@ -716,9 +790,9 @@ public:
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 29);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 51);
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 157);
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
-        bech32_hrp = "tcrl";
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x3C, 0x52, 0x4D};
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x3C, 0x53, 0x51};
+        bech32_hrp = "rcrl";
     }
 };
 
@@ -730,6 +804,11 @@ std::unique_ptr<const CChainParams> CChainParams::SigNet(const SigNetOptions& op
 std::unique_ptr<const CChainParams> CChainParams::RegTest(const RegTestOptions& options)
 {
     return std::make_unique<const CRegTestParams>(options);
+}
+
+std::unique_ptr<const CChainParams> CChainParams::CarlitosTestNet(const TestNetOptions& options)
+{
+    return std::make_unique<const CCarlitosTestNetParams>(options);
 }
 
 std::unique_ptr<const CChainParams> CChainParams::CarlitosRegTest(const RegTestOptions& options)
@@ -770,6 +849,7 @@ std::optional<ChainType> GetNetworkForMagic(const MessageStartChars& message)
     const auto testnet4_msg = CChainParams::TestNet4()->MessageStart();
     const auto regtest_msg = CChainParams::RegTest()->MessageStart();
     const auto signet_msg = CChainParams::SigNet()->MessageStart();
+    const auto carlitos_testnet_msg = CChainParams::CarlitosTestNet(CChainParams::TestNetOptions{})->MessageStart();
     const auto carlitos_regtest_msg = CChainParams::CarlitosRegTest(CChainParams::RegTestOptions{})->MessageStart();
 
     if (std::ranges::equal(message, mainnet_msg)) {
@@ -782,6 +862,8 @@ std::optional<ChainType> GetNetworkForMagic(const MessageStartChars& message)
         return ChainType::REGTEST;
     } else if (std::ranges::equal(message, signet_msg)) {
         return ChainType::SIGNET;
+    } else if (std::ranges::equal(message, carlitos_testnet_msg)) {
+        return ChainType::CARLITOS_TESTNET;
     } else if (std::ranges::equal(message, carlitos_regtest_msg)) {
         return ChainType::CARLITOS_REGTEST;
     }

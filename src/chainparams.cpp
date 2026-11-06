@@ -158,6 +158,11 @@ std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, c
         ReadRegTestArgs(args, opts);
         return CChainParams::RegTest(opts);
     }
+    case ChainType::CARLITOS_TESTNET: {
+        auto opts = CChainParams::TestNetOptions{};
+        ReadTestNetArgs(args, opts);
+        return CChainParams::CarlitosTestNet(opts);
+    }
     case ChainType::CARLITOS_REGTEST: {
         auto opts = CChainParams::RegTestOptions{};
         ReadRegTestArgs(args, opts);

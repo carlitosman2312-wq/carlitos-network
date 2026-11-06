@@ -21,10 +21,11 @@ Upstream baseline: Bitcoin Core v32.1
 | CMake configure | Passed |
 | Native build | Passed, 601/601 steps |
 | Python consensus reference | Passed, 13/13 |
-| Native validation suite | Passed, 8/8 |
-| Carlitos mainnet parameter/genesis test | Passed |
-| Carlitos dev-network parameter/genesis test | Passed |
-| Carlitos total issuance test | Passed |
+| Native validation suite | 8/8 passed before the latest public-testnet additions; rerun pending Linux CI |
+| Carlitos mainnet parameter/genesis and BIP32 prefix assertions | Compiled; earlier genesis/consensus test passed |
+| Carlitos public-testnet parameter/genesis test | Added and compiled; runtime execution pending |
+| Carlitos regtest parameter/genesis and address-prefix assertions | Compiled; earlier regtest genesis test passed before HRP update |
+| Carlitos total issuance test | Passed in earlier native validation run |
 | Full upstream CTest baseline (before fork-specific test adaptations) | 95% passed; 14 failed; 1 skipped; complete post-fix rerun pending Linux CI |
 | Daemon runtime smoke test on Windows | Blocked by Windows Application Control |
 | Python smoke-test syntax | Passed (`py_compile`) |
@@ -45,7 +46,7 @@ The fork intentionally changes consensus and mainnet identity, so inherited test
 - `net_peer_connection_tests`: fixed log strings expecting 8333 now use the active chain's configured port; the focused test passed once and observed 28444.
 - `pow_tests`: historical Bitcoin retarget vectors use Bitcoin testnet parameters in a local copy with the min-difficulty exception disabled; follow-up compiled, runtime rerun pending Linux CI.
 - `validation_chainstatemanager_tests`: when Carlitos minimum chainwork is zero, the test no longer subtracts one from unsigned zero (which wrapped to a huge work value); it omits the impossible below-zero-work fixture. The modified suite compiled.
-- Mainnet BIP32 extended-key prefixes are now custom (`043c524c` public, `043c5350` private); 23 public/24 private BIP32 vectors, 3 MuSig synthetic xpub vectors, and 421 public/242 private descriptor key strings were re-encoded without changing key payloads. The new mainnet identity assertions are being added to the targeted validation test. These custom bytes are provisional/unregistered in SLIP-0132.
+- Mainnet BIP32 extended-key prefixes are custom (`043c524c` public, `043c5350` private); public testnet uses `043c544c` / `043c5550`; regtest uses `043c524d` / `043c5351`. Mainnet fixtures include 23 public/24 private BIP32 vectors, 3 MuSig synthetic xpub vectors, and 421 public/242 private descriptor key strings re-encoded without changing key payloads. Mainnet and testnet parameter tests now assert their serialized versions. These values are provisional and not registered in SLIP-0132; do not promise third-party wallet interoperability.
 - `bip324_tests`: the original Windows run showed failures in cryptographic packet test vectors, unrelated to address prefixes; this still needs reproduction on supported Linux CI before attributing it to project code or toolchain.
 - `univalue_object_test`: could not be started by Windows Application Control.
 - `script_assets_tests`: skipped by CTest.

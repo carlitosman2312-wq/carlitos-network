@@ -105,6 +105,34 @@ BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
 }
 
 
+BOOST_AUTO_TEST_CASE(carlitos_testnet_parameters_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::CARLITOS_TESTNET);
+    const auto& params = chainParams->GetConsensus();
+
+    BOOST_CHECK_EQUAL(chainParams->GetChainTypeString(), "carlitostestnet");
+    BOOST_CHECK_EQUAL(chainParams->GetDefaultPort(), 48444);
+    BOOST_CHECK_EQUAL(chainParams->Bech32HRP(), "tcrl");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::PUBKEY_ADDRESS)), "1e");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SCRIPT_ADDRESS)), "34");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SECRET_KEY)), "9e");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::EXT_PUBLIC_KEY)), "043c544c");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::EXT_SECRET_KEY)), "043c5550");
+    BOOST_CHECK_EQUAL(params.nSubsidyHalvingInterval, 500000);
+    BOOST_CHECK_EQUAL(params.nInitialSubsidy, 100 * COIN);
+    BOOST_CHECK_EQUAL(params.nFirstRewardHeight, 1);
+    BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
+    BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
+    BOOST_CHECK_EQUAL(params.DifficultyAdjustmentInterval(), 2016);
+    BOOST_CHECK(params.fPowAllowMinDifficultyBlocks);
+    BOOST_CHECK(!params.fPowNoRetargeting);
+    BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
+                      "0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7");
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(0, params), 0);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1, params), 100 * COIN);
+    BOOST_CHECK(GetNetworkForMagic(chainParams->MessageStart()) == ChainType::CARLITOS_TESTNET);
+}
+
 BOOST_AUTO_TEST_CASE(carlitos_regtest_parameters_test)
 {
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::CARLITOS_REGTEST);
@@ -112,6 +140,7 @@ BOOST_AUTO_TEST_CASE(carlitos_regtest_parameters_test)
 
     BOOST_CHECK_EQUAL(chainParams->GetChainTypeString(), "carlitosregtest");
     BOOST_CHECK_EQUAL(chainParams->GetDefaultPort(), 38444);
+    BOOST_CHECK_EQUAL(chainParams->Bech32HRP(), "rcrl");
     BOOST_CHECK_EQUAL(params.nSubsidyHalvingInterval, 500000);
     BOOST_CHECK_EQUAL(params.nInitialSubsidy, 100 * COIN);
     BOOST_CHECK_EQUAL(params.nFirstRewardHeight, 1);

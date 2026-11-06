@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "native C++ node build passed; Carlitos native validation_tests 8/8 and Python reference tests 13/13 passed; runtime node tests and full upstream CTest adaptation pending",
+  "consensus_status": "native C++ build passed; Carlitos mainnet, testnet, and regtest parameter/genesis test code compiles; Python reference tests 13/13 passed; Linux node runtime smoke and full CTest results pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",
@@ -27,31 +27,70 @@
   },
   "network_parameters": {
     "mainnet_message_start": "c34c5453",
-    "testnet_message_start": null,
+    "testnet_message_start": "c34c544e",
     "mainnet_p2p_port": 28444,
     "mainnet_rpc_port": 28446,
+    "testnet_p2p_port": 48444,
+    "testnet_rpc_port": 48446,
+    "testnet_chain_argument": "-chain=carlitostestnet",
+    "testnet_genesis_hash": "0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7",
     "base58_prefixes": {
       "pubkey_address": 28,
       "script_address": 50,
-      "secret_key": 156
+      "secret_key": 156,
+      "extended_public_key_hex": "043c524c",
+      "extended_secret_key_hex": "043c5350"
     },
     "bech32_hrp": "crl",
-    "dns_seeds": []
+    "dns_seeds": [],
+    "public_testnet": {
+      "chain_argument": "-chain=carlitostestnet",
+      "message_start": "c34c544e",
+      "p2p_port": 48444,
+      "rpc_port": 48446,
+      "genesis_timestamp": 1793923201,
+      "genesis_merkle_root": "84daa1dedd3c0a686ed59904473d6a68c55524711ea76b22dd9ed99a1b0f706b",
+      "genesis_nonce": 11266668,
+      "genesis_hash": "0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7",
+      "base58_prefixes": {
+        "pubkey_address": 30,
+        "script_address": 52,
+        "secret_key": 158,
+        "extended_public_key_hex": "043c544c",
+        "extended_secret_key_hex": "043c5550"
+      },
+      "bech32_hrp": "tcrl",
+      "target_spacing_seconds": 600,
+      "difficulty_adjustment_interval_blocks": 2016,
+      "allow_min_difficulty_blocks": true,
+      "no_retargeting": false,
+      "dns_seeds": [],
+      "deployed": false
+    }
   },
   "notes": [
     "The v32.1 source tree is imported and the mainnet parameters and subsidy rule are patched in C++.",
     "The 0x1e00ffff proof-of-work target is 256 times easier than Bitcoin's historic difficulty-1 target and remains provisional; it is not a security guarantee.",
     "The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks.",
     "Do not use this branch for real funds or launch a public network before native tests and independent audits.",
-    "A separate local carlitosregtest chain type is configured; inherited Bitcoin regtest/testnet/signet are not Carlitos networks."
+    "A separate local carlitosregtest and distinct carlitostestnet chain type are configured; inherited Bitcoin regtest/testnet/signet are not Carlitos networks.",
+    "The public testnet has no DNS or fixed seeds and is not deployed; operators must manually connect nodes using -addnode until independent seed operators are running.",
+    "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry."
   ],
   "development_network": {
     "chain_argument": "-chain=carlitosregtest",
     "message_start": "c34c5454",
     "p2p_port": 38444,
     "rpc_port": 38446,
-    "bech32_hrp": "tcrl",
+    "bech32_hrp": "rcrl",
     "proof_of_work": "easy on-demand local development mining",
-    "public_network": false
+    "public_network": false,
+    "base58_prefixes": {
+      "pubkey_address": 29,
+      "script_address": 51,
+      "secret_key": 157,
+      "extended_public_key_hex": "043c524d",
+      "extended_secret_key_hex": "043c5351"
+    }
   }
 }

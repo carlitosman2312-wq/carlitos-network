@@ -438,6 +438,8 @@ private:
             return " signet";
         case ChainType::REGTEST:
             return " regtest";
+        case ChainType::CARLITOS_TESTNET:
+            return " carlitostestnet";
         case ChainType::CARLITOS_REGTEST:
             return " carlitosregtest";
         case ChainType::MAIN:
