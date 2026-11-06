@@ -133,6 +133,8 @@ const CChainParams &Params() {
 std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, const ChainType chain)
 {
     switch (chain) {
+    case ChainType::BITCOIN_MAIN_TEST:
+        return CChainParams::BitcoinMainTest();
     case ChainType::MAIN: {
         auto opts = CChainParams::MainNetOptions{};
         ReadMainNetArgs(args, opts);
