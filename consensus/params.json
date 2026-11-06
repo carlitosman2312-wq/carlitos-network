@@ -1,0 +1,42 @@
+{
+  "network": "Carlitos Network",
+  "ticker": "CRLTS",
+  "consensus_status": "reference-only; not yet integrated into a full node",
+  "consensus": {
+    "type": "proof-of-work",
+    "hash_algorithm": "SHA-256",
+    "target_spacing_seconds": 600,
+    "target_timespan_seconds": 1209600,
+    "difficulty_adjustment_interval_blocks": 2016,
+    "retarget_min_timespan_seconds": 302400,
+    "retarget_max_timespan_seconds": 4838400,
+    "allow_min_difficulty_blocks": false,
+    "no_retargeting": false,
+    "pow_limit_hex": "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "initial_nbits_hex": "1d00ffff"
+  },
+  "monetary_policy": {
+    "base_units_per_coin": 100000000,
+    "decimals": 8,
+    "genesis_subsidy_base_units": 0,
+    "first_mined_block_subsidy_coins": 100,
+    "halving_interval_reward_blocks": 500000,
+    "first_reward_height": 1,
+    "premine_coins": 0,
+    "transaction_fees": "paid_to_block_miner"
+  },
+  "network_parameters": {
+    "mainnet_message_start": null,
+    "testnet_message_start": null,
+    "mainnet_p2p_port": null,
+    "mainnet_rpc_port": null,
+    "base58_prefixes": null,
+    "bech32_hrp": null,
+    "dns_seeds": []
+  },
+  "notes": [
+    "This draft intentionally reuses Bitcoin mainnet's proof-of-work limit and initial compact target as a starting proposal; they still require explicit approval and review.",
+    "Difficulty adjustment is modeled after Bitcoin Core's non-min-difficulty mainnet path, including 1/4 and 4x timespan clamps.",
+    "Do not use these values to launch a public network yet."
+  ]
+}
