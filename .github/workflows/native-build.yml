@@ -44,3 +44,6 @@ jobs:
 
       - name: Run targeted native consensus tests
         run: build/bin/test_bitcoin --run_test=validation_tests --log_level=message
+
+      - name: Smoke test local node, wallet, mining, maturity, and transaction
+        run: python3 tests/smoke_node.py

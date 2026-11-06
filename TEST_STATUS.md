@@ -26,8 +26,10 @@ Upstream baseline: Bitcoin Core v32.1
 | Carlitos dev-network parameter/genesis test | Passed |
 | Carlitos total issuance test | Passed |
 | Full upstream CTest | 95% passed; 14 failed; 1 skipped |
-| Daemon runtime smoke test | Blocked by Windows Application Control |
-| GitHub push | Pending Git Credential Manager authentication |
+| Daemon runtime smoke test on Windows | Blocked by Windows Application Control |
+| Python smoke-test syntax | Passed (`py_compile`) |
+| Linux end-to-end node smoke test | Added to GitHub Actions; result pending |
+| GitHub push | Passed; branch is tracking origin |
 
 ## Why the full CTest suite is not green yet
 
