@@ -42,6 +42,9 @@ jobs:
       - name: Run Python reference consensus tests
         run: python3 -m unittest discover -s tests -v
 
+      - name: Run complete CTest suite
+        run: ctest --test-dir build --output-on-failure
+
       - name: Run targeted native consensus tests
         run: build/bin/test_bitcoin --run_test=validation_tests --log_level=message
 
