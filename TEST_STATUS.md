@@ -36,10 +36,11 @@ Upstream baseline: Bitcoin Core v32.1
 The fork intentionally changes consensus and mainnet identity, so inherited tests that hard-code Bitcoin expectations must be revised before the full suite can pass. Observed failures include:
 
 - key_io_tests, script_standard_tests, and util_tests: old Bitcoin address prefixes and message-verification vectors.
-- net_peer_connection_tests: expected Bitcoin's 8333 port instead of Carlitos' 28444.
-- pow_tests and miner_tests: old Bitcoin mainnet proof-of-work target assumptions.
-- util_tests, transaction_tests, and related money tests: old 21-million-coin MAX_MONEY assumption.
+- miner_tests: one failing test from the original Windows run still needs isolation and supported-platform reproduction.
+- util_tests, transaction_tests, and related money tests: inherited 21-million-coin assumptions. `util_ParseMoney` was updated to check the Carlitos 100-million-coin cap and reject one base unit above it; its focused local test passed once. `transaction_tests` still has Bitcoin-specific invalid-transaction fixtures and needs careful fixture adaptation, not weaker consensus rules.
 - rpc_tests and validation_chainstatemanager_tests: require separate review of old chain-specific assumptions.
+- `net_peer_connection_tests`: hard-coded 8333 log expectations were changed to use the selected chain's configured port; its focused local test passed once.
+- `pow_tests`: historical Bitcoin retarget vectors now use Bitcoin testnet parameters in a local copy with the testnet minimum-difficulty exception disabled. The initial focused run exposed two edge assertions; the follow-up adjustment compiled, but Windows Application Control blocked the rerun. Linux CI must verify it.
 - bip324_tests, bloom_tests, key_tests, and some other tests: failures/crashes observed under this Windows/MSYS2/GCC toolchain and require reproduction on supported Linux CI.
 - univalue_object_test: could not be started by Windows Application Control.
 - script_assets_tests: skipped by CTest.
