@@ -58,7 +58,7 @@ using node::BlockCreateOptions;
 
 namespace miner_tests {
 struct MinerTestingSetup : public TestingSetup {
-    MinerTestingSetup() : TestingSetup{ChainType::REGTEST} {}
+    MinerTestingSetup() : TestingSetup{ChainType::BITCOIN_MAIN_TEST} {}
     void TestPackageSelection(const CScript& scriptPubKey, const std::vector<CTransactionRef>& txFirst) EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
     void TestBasicMining(const CScript& scriptPubKey, const std::vector<CTransactionRef>& txFirst, int baseheight) EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
     void TestPrioritisedMining(const CScript& scriptPubKey, const std::vector<CTransactionRef>& txFirst) EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
