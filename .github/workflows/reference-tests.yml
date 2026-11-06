@@ -8,7 +8,7 @@ on:
 
 # Avoid running stale reference-test jobs repeatedly for the same PR/ref.
 concurrency:
-  group: carlitos-reference-${{ github.event.pull_request.number || github.ref }}
+  group: carlitos-reference-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
