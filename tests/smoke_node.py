@@ -17,8 +17,9 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
     log_path = data / "daemon.log"
     cli_base = [str(CLI), "-chain=carlitosregtest", f"-datadir={data}"]
 
-    def rpc(*args, check=True):
-        result = subprocess.run(cli_base + list(args), text=True, capture_output=True, timeout=45)
+    def rpc(*args, check=True, wallet=False):
+        command = cli_base + (["-rpcwallet=smoke-wallet"] if wallet else []) + list(args)
+        result = subprocess.run(command, text=True, capture_output=True, timeout=45)
         if check and result.returncode:
             raise RuntimeError(f"bitcoin-cli {' '.join(args)} failed: {result.stderr.strip()}")
         return result.stdout.strip()
@@ -43,23 +44,23 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
             info = json.loads(rpc("getblockchaininfo"))
             assert info["blocks"] == 0, info
             rpc("createwallet", "smoke-wallet")
-            mining_address = rpc("getnewaddress", "", "bech32")
+            mining_address = rpc("getnewaddress", "", "bech32", wallet=True)
             assert mining_address.startswith("tcrl1"), mining_address
 
             rpc("generatetoaddress", "100", mining_address)
-            balance_100 = Decimal(rpc("getbalance"))
+            balance_100 = Decimal(rpc("getbalance", wallet=True))
             assert balance_100 == Decimal("0"), f"coinbase must remain immature at height 100, got {balance_100}"
             rpc("generatetoaddress", "1", mining_address)
-            balance_101 = Decimal(rpc("getbalance"))
+            balance_101 = Decimal(rpc("getbalance", wallet=True))
             assert balance_101 == Decimal("100"), f"expected first 100 CRLTS reward to mature at height 101, got {balance_101}"
             rpc("generatetoaddress", "1", mining_address)
-            balance_102 = Decimal(rpc("getbalance"))
+            balance_102 = Decimal(rpc("getbalance", wallet=True))
             assert balance_102 == Decimal("200"), f"expected second 100 CRLTS reward to mature at height 102, got {balance_102}"
 
-            destination = rpc("getnewaddress", "", "bech32")
-            txid = rpc("sendtoaddress", destination, "1.0").strip('"')
+            destination = rpc("getnewaddress", "", "bech32", wallet=True)
+            txid = rpc("sendtoaddress", destination, "1.0", wallet=True).strip('"')
             rpc("generatetoaddress", "1", mining_address)
-            transaction = json.loads(rpc("gettransaction", txid))
+            transaction = json.loads(rpc("gettransaction", txid, wallet=True))
             assert transaction["confirmations"] >= 1, transaction
             assert json.loads(rpc("getblockchaininfo"))["blocks"] == 103
             print("PASS: Carlitos regtest node, RPC, wallet, tcrl address, 100-block maturity, mining, and confirmed spend")

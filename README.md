@@ -13,9 +13,9 @@ The objective is a native coin with its own blockchain, nodes, mining, wallets, 
 - C++ node, CLI, wallet, and native test binary build successfully with GCC 16.2 / CMake 4.4.5 on the connected Windows PC.
 - Python reference tests: 13/13 pass.
 - Bitcoin Core native validation_tests suite: 8/8 pass, including Carlitos mainnet genesis, Carlitos development genesis, and total issuance.
-- Full upstream CTest run: 95% passed; 14 tests failed and one was skipped. Several still expect Bitcoin's old address prefixes, monetary ceiling, port, or proof-of-work limit; other failures are specific to the Windows/MSYS2/GCC test environment. See TEST_STATUS.md.
+- Baseline full upstream CTest (before Carlitos-specific fixture updates): 95% passed; 14 tests failed and one was skipped. Chain-specific address/WIF, money, RPC, miner, PoW, and chainstate test fixtures have since been adapted and the updated native test binary compiles. A complete post-fix rerun is pending Linux CI; cryptographic BIP324 failures still require supported-platform reproduction. See TEST_STATUS.md.
 - The daemon executable could not be launched on the Windows PC because Windows Application Control blocked it. Runtime mining/RPC tests therefore remain pending.
-- Git commit is local on integration/bitcoin-core-v32.1; pushing to GitHub is waiting for Git Credential Manager authentication.
+- The integration branch has been pushed to GitHub. Draft PR #2 is open for review and CI validation; it has not been merged into main.
 
 See PROTOCOL.md, CONSENSUS_REFERENCE.md, UPSTREAM.md, and TEST_STATUS.md.
 

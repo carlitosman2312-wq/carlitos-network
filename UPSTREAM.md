@@ -27,13 +27,13 @@ The full v32.1 source tree was fetched from the official upstream repository and
 - Native build: 601/601 steps successful. Built bitcoind.exe, bitcoin-cli.exe, bitcoin-wallet.exe, bitcoin.exe, and test_bitcoin.exe.
 - Python reference tests: 13/13 pass.
 - Native validation_tests: 8/8 pass.
-- Full CTest: 95% passed, 14 failures, 1 skipped. Most failures are inherited test vectors still hard-coded for Bitcoin's bc1/Base58 prefixes, 21-million-coin cap, 8333 port, or 0x1d00ffff work limit. Some tests also crash or are blocked under this Windows/MSYS2/GCC environment. They are not being described as passing; see TEST_STATUS.md.
+- Initial full CTest baseline (before fork-specific fixture adaptations): 95% passed, 14 failures, 1 skipped. Since that baseline, source fixtures for Carlitos address/WIF prefixes, money ceiling, RPC addresses, miner/regtest, PoW retarget vectors, transaction invalid cases, and zero minimum-chainwork have been updated and the native test binary recompiles. The full post-fix suite has not yet been rerun because Windows Application Control blocks the rebuilt test executable; Linux CI is pending. BIP324 cryptographic vector failures still require supported-platform reproduction. See TEST_STATUS.md.
 - Launching the daemon was blocked by Windows Application Control. No policy bypass was attempted, so RPC, wallet operations, P2P, and mined blocks have not been smoke-tested.
-- The Git branch and commit exist locally. Git push has not completed because Git Credential Manager is waiting for GitHub authentication.
+- The integration branch and commits are pushed to GitHub. Draft PR #2 is open but not merged; the latest Linux Actions runs are queued, so their results are not yet available.
 
 ## Remaining engineering work before public use
 
-1. Adapt or replace all inherited tests that assume Bitcoin's old mainnet identity, address prefixes, monetary ceiling, and proof-of-work limit.
+1. Run the adapted full C++ suite on Linux CI, verify the chain-aware test fixture changes, and fix any remaining failures (notably the BIP324 crypto-vector suite if reproducible).
 2. Obtain a trusted build environment where the node executable is permitted to run; test startup, RPC, wallet creation, block generation, coinbase maturity, sends, P2P, reorganizations, restart, and recovery.
 3. Finalize unique extended-key prefixes and wallet derivation path/coin type; verify import/export compatibility does not confuse Bitcoin and Carlitos keys.
 4. Define independent DNS seed operators and launch a multi-node public testnet.

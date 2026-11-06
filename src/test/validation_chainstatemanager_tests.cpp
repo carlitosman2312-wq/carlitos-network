@@ -202,10 +202,17 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_ibd_exit_after_loading_blocks, ChainTe
         chainman.UpdateIBDStatus();
     }};
 
+    // Carlitos intentionally has no inherited Bitcoin minimum-chainwork checkpoint.
+    // A zero threshold cannot represent a "less than minimum work" tip (subtracting one
+    // from zero would wrap the unsigned chainwork value), so only exercise enough_work=true.
+    const std::vector<bool> enough_work_values = chainman.MinimumChainWork() == 0
+        ? std::vector<bool>{true}
+        : std::vector<bool>{false, true};
+
     for (const bool cached_is_ibd : {false, true}) {
         for (const bool loading_blocks : {false, true}) {
             for (const bool tip_exists : {false, true}) {
-                for (const bool enough_work : {false, true}) {
+                for (const bool enough_work : enough_work_values) {
                     for (const bool tip_recent : {false, true}) {
                         apply(cached_is_ibd, loading_blocks, tip_exists, enough_work, tip_recent);
                         const bool expected_ibd = cached_is_ibd && (loading_blocks || !tip_exists || !enough_work || !tip_recent);
