@@ -11,7 +11,7 @@ on:
 # Keep one current validation run per PR/ref. This prevents push + PR events
 # and rapid commits from building the same native tree repeatedly.
 concurrency:
-  group: carlitos-native-${{ github.event.pull_request.number || github.ref }}
+  group: carlitos-native-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
