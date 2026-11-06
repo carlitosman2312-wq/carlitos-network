@@ -46,18 +46,28 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 8. Define coinbase maturity explicitly (proposed Bitcoin-like default: 100 blocks) and test it.
 9. Genesis block has no spendable premine. Its exact timestamp, headline/message, merkle root, nonce, and resulting hash must be generated and verified after network parameters are finalized. Do not invent or pre-fill a genesis hash.
 
-## Network parameters still to be finalized
+## Proposed mainnet identity (not a launch approval)
 
-- Mainnet and testnet message-start bytes (network magic)
-- P2P and RPC ports
-- Base58 address prefixes and Bech32 human-readable prefix
-- DNS seed operators and seed hostnames
-- Genesis timestamp and coinbase message
-- Proof-of-work limit and exact retarget clamp semantics
-- Wallet derivation and descriptor defaults
-- Protocol versioning and activation policy for inherited Bitcoin features
+| Parameter | Proposed value |
+|---|---|
+| Genesis timestamp | 2026-11-06 00:00:00 UTC (1793923200) |
+| Genesis coinbase message | Carlitos Network - A fair start for everyone. |
+| Genesis subsidy | 0 CRLTS |
+| Genesis nBits | 0x1e00ffff |
+| Genesis nonce | 5,677,157 |
+| Genesis merkle root | 6fb2576a8861ef3c2b3abcbaccbf4b33e9f0999cb1203cca7f20419feea1eaf0 |
+| Genesis block hash | 00000045c5a492bcf1dc4adaa826bc5d4cdfcc435b822692c92860834a9d94e5 |
+| Proof-of-work limit | 000000ffff000000000000000000000000000000000000000000000000000000 |
+| Mainnet message-start bytes | c3 4c 54 53 |
+| Mainnet P2P port | 28444 |
+| Mainnet RPC port | 28446 |
+| P2PKH / P2SH / WIF prefixes | 28 / 50 / 156 |
+| Bech32 HRP | crl |
+| DNS seeds / fixed seeds | None configured |
 
-These values must be unique, documented, and covered by tests before a public network launch.
+The genesis block was computed with zero coinbase value and SHA-256d proof of work. The 0x1e00ffff target is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. It is only a provisional bootstrap parameter and provides no guarantee against a 51% attack. Public launch requires independent review and meaningful, distributed hash power.
+
+The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks. Do not use them as public Carlitos networks. Wallet derivation policy and independent seed operators remain to be finalized. The source now includes a separate local -chain=carlitosregtest development network with easy on-demand mining. It is not public and has not yet passed native build or functional tests.
 
 ## Security and launch criteria
 

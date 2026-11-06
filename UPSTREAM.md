@@ -2,34 +2,36 @@
 
 ## Selected source baseline
 
-- Upstream repository: https://github.com/bitcoin/bitcoin
-- Selected tag: `v32.1`
-- Release reference: https://github.com/bitcoin/bitcoin/releases/tag/v32.1
-- Official release page: https://bitcoincore.org/en/releases/
+- Upstream: https://github.com/bitcoin/bitcoin
+- Tag: v32.1
+- Commit: f0de87f040621468b956f01f526a43a010310501
+- Release: https://github.com/bitcoin/bitcoin/releases/tag/v32.1
 
-As checked on 2026-11-06, the GitHub releases page identifies Bitcoin Core 32.1 as the latest release. The release page reports a verified signed tag. Before importing or building the source, verify the published release signatures and deterministic release checksums using Bitcoin Core's official release instructions.
+The full v32.1 source tree was fetched from the official upstream repository and merged into the integration/bitcoin-core-v32.1 branch. The upstream commit remains in the Git history as a merge parent, and upstream COPYING/license notices are retained.
 
-## Upstream files reviewed
+## Carlitos changes made in this branch
 
-The following files at tag `v32.1` were reviewed as references for the parameter mapping:
+- src/kernel/chainparams.cpp: Carlitos mainnet genesis, PoW limit, 600-second spacing, 1,209,600-second target timespan, P2P port, network magic, address prefixes, Bech32 HRP, empty seed lists, and removal of Bitcoin-specific assume-valid, assume-UTXO, and header-sync assumptions.
+- src/chainparamsbase.cpp: separate Carlitos mainnet RPC port.
+- src/consensus/params.h: configurable initial subsidy and first reward height with Bitcoin-compatible defaults for inherited chain types.
+- src/consensus/amount.h: MAX_MONEY increased to the 100,000,000 CRLTS protocol ceiling.
+- src/validation.cpp: subsidy calculation in integer base units.
+- src/test/validation_tests.cpp: subsidy boundary, full issuance, chain parameters, and genesis hash tests.
+- src/pow.cpp: retained upstream retarget implementation; Carlitos supplies target spacing and timespan through consensus parameters.
 
-- `src/kernel/chainparams.cpp` — chain-specific genesis block, proof-of-work limit, target spacing/timespan, halving interval, network magic, ports, address prefixes, and seed configuration.
-- `src/consensus/params.h` — consensus parameter structure and difficulty adjustment interval calculation.
-- `src/pow.cpp` — next-work-required logic, timespan clamps, compact target handling, and proof-of-work target validation.
+## Validation status
 
-The Carlitos Python reference model follows the non-min-difficulty mainnet retarget path as a starting point. It does not copy or replace these C++ files.
+The Python reference suite passes 13 tests on the connected Windows PC. The C++ source has not yet been compiled or executed through Bitcoin Core's native tests.
 
-## Import/integration status
+The inherited testnet, testnet4, signet, and regtest chain modes remain upstream Bitcoin networks and are not Carlitos testnets. A separate carlitosregtest chain type has now been added with its own message magic, ports, address prefixes, genesis, and easy on-demand mining parameters. It is intended only for local development; it has not yet been compiled or exercised in the native functional suite.
 
-**Not yet imported.** This repository does not currently contain the Bitcoin Core source tree, and no C++ consensus files have been patched. The Python model is a testable protocol reference only.
+## Before any public launch
 
-The next implementation phase should:
+1. Build from a clean environment and run the complete native unit and functional suites.
+2. Add a separate Carlitos dev/regtest network for mining, wallets, P2P, transactions, reorganizations, and recovery testing.
+3. Verify all network identifiers, address encodings, RPC ports, genesis values, and protocol activations.
+4. Run multi-node public testnet with independent operators.
+5. Obtain independent consensus and security audits, especially of PoW security and issuance.
+6. Only then consider mainnet binaries and public mining instructions.
 
-1. Import a verified copy of the selected upstream source into a dedicated branch or a true fork.
-2. Preserve upstream history and license notices.
-3. Change only Carlitos-specific parameters first, in particular chain parameters and subsidy interval.
-4. Add C++ unit tests that assert the exact reward-height boundaries and difficulty-retarget boundaries.
-5. Add regtest/functional tests for genesis, mining, invalid proof of work, chainwork selection, reorgs, and wallet behavior.
-6. Build from a clean environment and keep the upstream diff reviewable.
-
-Do not use the Python reference tests as a substitute for Bitcoin Core's C++ or functional test suites.
+This is an experimental development branch, not an operating or launched blockchain.

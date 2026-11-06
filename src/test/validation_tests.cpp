@@ -23,19 +23,26 @@ BOOST_FIXTURE_TEST_SUITE(validation_tests, BasicTestingSetup)
 
 static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
 {
-    int maxHalvings = 64;
-    CAmount nInitialSubsidy = 50 * COIN;
+    const int interval = consensusParams.nSubsidyHalvingInterval;
+    const int first_reward_height = consensusParams.nFirstRewardHeight;
+    const CAmount initial_subsidy = consensusParams.nInitialSubsidy;
 
-    CAmount nPreviousSubsidy = nInitialSubsidy * 2; // for height == 0
-    BOOST_CHECK_EQUAL(nPreviousSubsidy, nInitialSubsidy * 2);
-    for (int nHalvings = 0; nHalvings < maxHalvings; nHalvings++) {
-        int nHeight = nHalvings * consensusParams.nSubsidyHalvingInterval;
-        CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams);
-        BOOST_CHECK(nSubsidy <= nInitialSubsidy);
-        BOOST_CHECK_EQUAL(nSubsidy, nPreviousSubsidy / 2);
-        nPreviousSubsidy = nSubsidy;
+    BOOST_CHECK(interval > 0);
+    if (first_reward_height > 0) {
+        BOOST_CHECK_EQUAL(GetBlockSubsidy(first_reward_height - 1, consensusParams), 0);
+    } else {
+        BOOST_CHECK_EQUAL(GetBlockSubsidy(first_reward_height, consensusParams), initial_subsidy);
     }
-    BOOST_CHECK_EQUAL(GetBlockSubsidy(maxHalvings * consensusParams.nSubsidyHalvingInterval, consensusParams), 0);
+
+    for (int halvings = 0; halvings < 64; ++halvings) {
+        const int first_height = first_reward_height + halvings * interval;
+        CAmount expected = initial_subsidy;
+        expected >>= halvings;
+
+        BOOST_CHECK_EQUAL(GetBlockSubsidy(first_height, consensusParams), expected);
+        BOOST_CHECK_EQUAL(GetBlockSubsidy(first_height + interval - 1, consensusParams), expected);
+    }
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(first_reward_height + 64 * interval, consensusParams), 0);
 }
 
 static void TestBlockSubsidyHalvings(int nSubsidyHalvingInterval)
@@ -57,13 +64,74 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
 {
     const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     CAmount nSum = 0;
-    for (int nHeight = 0; nHeight < 14000000; nHeight += 1000) {
+    for (int nHeight = 1; nHeight < 14000001; nHeight += 1000) {
         CAmount nSubsidy = GetBlockSubsidy(nHeight, chainParams->GetConsensus());
-        BOOST_CHECK(nSubsidy <= 50 * COIN);
+        BOOST_CHECK(nSubsidy <= 100 * COIN);
         nSum += nSubsidy * 1000;
         BOOST_CHECK(MoneyRange(nSum));
     }
-    BOOST_CHECK_EQUAL(nSum, CAmount{2099999997690000});
+    BOOST_CHECK_EQUAL(nSum, CAmount{9999999959000000});
+}
+
+
+BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+
+    BOOST_CHECK_EQUAL(params.nSubsidyHalvingInterval, 500000);
+    BOOST_CHECK_EQUAL(params.nInitialSubsidy, 100 * COIN);
+    BOOST_CHECK_EQUAL(params.nFirstRewardHeight, 1);
+    BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
+    BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
+    BOOST_CHECK_EQUAL(params.DifficultyAdjustmentInterval(), 2016);
+    BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
+                      "00000045c5a492bcf1dc4adaa826bc5d4cdfcc435b822692c92860834a9d94e5");
+
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(0, params), 0);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1, params), 100 * COIN);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(500000, params), 100 * COIN);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(500001, params), 50 * COIN);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1000000, params), 50 * COIN);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1000001, params), 25 * COIN);
+}
+
+
+BOOST_AUTO_TEST_CASE(carlitos_regtest_parameters_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::CARLITOS_REGTEST);
+    const auto& params = chainParams->GetConsensus();
+
+    BOOST_CHECK_EQUAL(chainParams->GetChainTypeString(), "carlitosregtest");
+    BOOST_CHECK_EQUAL(chainParams->GetDefaultPort(), 38444);
+    BOOST_CHECK_EQUAL(params.nSubsidyHalvingInterval, 500000);
+    BOOST_CHECK_EQUAL(params.nInitialSubsidy, 100 * COIN);
+    BOOST_CHECK_EQUAL(params.nFirstRewardHeight, 1);
+    BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
+    BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
+    BOOST_CHECK(params.fPowAllowMinDifficultyBlocks);
+    BOOST_CHECK(params.fPowNoRetargeting);
+    BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
+                      "5d5121cdfe632e15ad65a990d2991d471003eee6a02aba1a941c7f0cc3439a76");
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(0, params), 0);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(1, params), 100 * COIN);
+    BOOST_CHECK(GetNetworkForMagic(chainParams->MessageStart()) == ChainType::CARLITOS_REGTEST);
+}
+
+BOOST_AUTO_TEST_CASE(carlitos_total_supply_test)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto& params = chainParams->GetConsensus();
+    CAmount total_supply = 0;
+
+    for (int halvings = 0; halvings < 64; ++halvings) {
+        const int first_height = params.nFirstRewardHeight + halvings * params.nSubsidyHalvingInterval;
+        total_supply += GetBlockSubsidy(first_height, params) * params.nSubsidyHalvingInterval;
+    }
+
+    // Integer base-unit rounding leaves the final issuance 0.055 CRLTS below 100 million.
+    BOOST_CHECK_EQUAL(total_supply, CAmount{9999999994500000});
+    BOOST_CHECK(total_supply <= MAX_MONEY);
 }
 
 BOOST_AUTO_TEST_CASE(signet_parse_tests)

@@ -38,7 +38,7 @@ class IssuanceTests(unittest.TestCase):
 
 
 class CompactTargetTests(unittest.TestCase):
-    def test_bitcoin_mainnet_pow_limit_encoding(self):
+    def test_carlitos_mainnet_pow_limit_encoding(self):
         self.assertEqual(encode_compact(POW_LIMIT), POW_LIMIT_COMPACT)
         decoded = decode_compact(POW_LIMIT_COMPACT)
         # Compact nBits truncates low-order target bits; the decoded target

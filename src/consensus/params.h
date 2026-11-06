@@ -6,6 +6,7 @@
 #ifndef BITCOIN_CONSENSUS_PARAMS_H
 #define BITCOIN_CONSENSUS_PARAMS_H
 
+#include <consensus/amount.h>
 #include <script/verify_flags.h>
 #include <uint256.h>
 
@@ -88,6 +89,10 @@ struct BIP9Deployment {
 struct Params {
     uint256 hashGenesisBlock;
     int nSubsidyHalvingInterval;
+    /** Initial block subsidy in base units; defaults preserve Bitcoin parameters. */
+    CAmount nInitialSubsidy{50 * COIN};
+    /** Height of the first reward-bearing block. Bitcoin-compatible default is 0. */
+    int nFirstRewardHeight{0};
     /**
      * Hashes of blocks that
      * - are known to be consensus valid, and

@@ -2,43 +2,39 @@
 
 ## Purpose and status
 
-This is an executable, testable reference for two parts of the proposed Carlitos rules:
+This is an executable reference for the Carlitos issuance schedule and Bitcoin-style SHA-256 proof-of-work target adjustment. It is separate from the C++ node implementation and must not be used to validate production blocks.
 
-- block subsidy and the 500,000-reward-block halving schedule;
-- Bitcoin-mainnet-style SHA-256 proof-of-work target adjustment.
+## Issuance
 
-It is deliberately separate from Bitcoin Core's C++ implementation. It is not a node, miner, wallet, P2P protocol, or production consensus implementation. The Python model must not be used to validate real blocks.
+- Genesis height 0 has zero subsidy and no spendable premine.
+- The first reward-bearing block is height 1.
+- Heights 1 through 500,000 pay 100 CRLTS.
+- Heights 500,001 through 1,000,000 pay 50 CRLTS, and so on.
+- One CRLTS equals 100,000,000 base units. All calculations use integer arithmetic.
+- Fractional base units are discarded at each right shift and never issued later.
+- The complete geometric schedule produces 99,999,999.945 CRLTS because of integer rounding.
 
-## Exact schedule
+## Difficulty
 
-Block height 0 is the genesis block and has a subsidy of zero. Height 1 is the first reward-bearing block. Heights 1–500,000 pay 100 CRLTS; heights 500,001–1,000,000 pay 50 CRLTS, and so on.
-
-All amounts are integer base units. One CRLTS is 100,000,000 base units. The subsidy right-shifts by one bit at each halving boundary, discarding fractional base units. There is no premine and no later issuance of rounding dust.
-
-## Difficulty model
-
-- Target spacing: 600 seconds.
+- Target block spacing: 600 seconds.
 - Target timespan: 1,209,600 seconds.
 - Adjustment interval: 2,016 blocks.
-- Retarget occurs for the next block when its height is divisible by 2,016.
-- The retarget window's first timestamp is the timestamp of the ancestor at `last_height - (interval - 1)`, matching Bitcoin Core's retarget-window convention.
-- Actual timespan is clamped to between one quarter and four times the target timespan.
-- New target is `old_target * clamped_actual_timespan // target_timespan`, capped at the proof-of-work limit.
-- There is no minimum-difficulty exception and no no-retarget mode in the proposed mainnet model.
-- Compact `nBits` encoding is used; negative, zero, overflowing, and above-limit targets must be rejected during block validation.
+- The next block is retargeted when its height is divisible by 2,016.
+- The retarget window uses the ancestor at last_height minus (interval minus 1), matching Bitcoin Core.
+- Actual timespan is clamped to one quarter through four times the target timespan.
+- The new target is old_target times clamped_actual_timespan divided by target_timespan, rounded down and capped by the Carlitos proof-of-work limit.
+- No minimum-difficulty exception is enabled on the proposed mainnet.
 
-This reference uses the Bitcoin mainnet proof-of-work limit and initial `nBits` as provisional starting parameters, not as final Carlitos network identifiers. The target and retarget approach are based on Bitcoin Core v32.1's `src/kernel/chainparams.cpp`, `src/consensus/params.h`, and `src/pow.cpp`. Review these upstream sources directly before porting behavior.
+The mainnet proof-of-work limit is compact target 0x1e00ffff. This is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. It is only a provisional bootstrap value and does not make the network secure against a 51% attack. Independent hash-rate analysis and review are mandatory before public launch.
 
-## Tests
+The reference model follows the non-min-difficulty mainnet path in Bitcoin Core v32.1, primarily src/pow.cpp and src/consensus/params.h. The C++ node implementation is authoritative once compiled and validated.
 
-Run locally:
+## Run reference tests
 
-```sh
-python -m unittest discover -s tests -v
-```
+    python -m unittest discover -s tests -v
 
-The tests cover genesis issuance, halving boundaries, compact-target conversion and error flags, retarget boundaries, timespan clamping, and proof-of-work-limit capping.
+These tests cover issuance boundaries, integer rounding, compact target encoding, retarget boundaries, timespan clamps, and proof-of-work limit handling. Passing them does not prove the C++ node is correct.
 
-## Next integration step
+## Current engineering boundary
 
-Port these chosen parameters into a pinned Bitcoin Core source baseline and add C++ consensus tests plus functional regtest tests. The Python tests are a specification aid; passing them does not prove the C++ node is correct or secure.
+The Bitcoin Core v32.1 source tree has been imported. Carlitos mainnet chain parameters and subsidy calculation have been patched in C++; C++ tests have been added. The full C++ build, native test_bitcoin suite, functional tests, testnet, and external audit remain pending.

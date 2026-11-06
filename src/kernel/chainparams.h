@@ -168,6 +168,7 @@ public:
     };
 
     static std::unique_ptr<const CChainParams> RegTest(const RegTestOptions& options);
+    static std::unique_ptr<const CChainParams> CarlitosRegTest(const RegTestOptions& options);
     static std::unique_ptr<const CChainParams> RegTest() { const RegTestOptions opts{}; return RegTest(opts); }
     static std::unique_ptr<const CChainParams> SigNet(const SigNetOptions& options);
     static std::unique_ptr<const CChainParams> SigNet() { const SigNetOptions opts{}; return SigNet(opts); }
