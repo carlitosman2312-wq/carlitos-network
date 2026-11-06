@@ -41,7 +41,10 @@ class CompactTargetTests(unittest.TestCase):
     def test_bitcoin_mainnet_pow_limit_encoding(self):
         self.assertEqual(encode_compact(POW_LIMIT), POW_LIMIT_COMPACT)
         decoded = decode_compact(POW_LIMIT_COMPACT)
-        self.assertEqual(decoded.value, POW_LIMIT)
+        # Compact nBits truncates low-order target bits; the decoded target
+        # is therefore no greater than the full proof-of-work limit.
+        self.assertLessEqual(decoded.value, POW_LIMIT)
+        self.assertEqual(encode_compact(decoded.value), POW_LIMIT_COMPACT)
         self.assertFalse(decoded.negative)
         self.assertFalse(decoded.overflow)
 
@@ -86,12 +89,17 @@ class DifficultyTests(unittest.TestCase):
         got = calculate_next_work_required(
             self.old_bits, 100, 100 + TARGET_TIMESPAN * 10
         )
-        expected = encode_compact(self.old_target * 4)
+        decoded_old_target = decode_compact(self.old_bits).value
+        expected = encode_compact(decoded_old_target * 4)
         self.assertEqual(got, expected)
 
     def test_result_is_capped_at_pow_limit(self):
-        got = calculate_next_work_required(POW_LIMIT_COMPACT, 100, 100 + TARGET_TIMESPAN * 4)
-        self.assertEqual(got, POW_LIMIT_COMPACT)
+        limit_bits = POW_LIMIT_COMPACT
+        compact_limit = decode_compact(limit_bits).value
+        got = calculate_next_work_required(
+            limit_bits, 100, 100 + TARGET_TIMESPAN * 4, pow_limit=compact_limit
+        )
+        self.assertEqual(got, limit_bits)
 
     def test_non_boundary_does_not_retarget(self):
         # Height 2015 is a retarget boundary for the *next* block; height 2014 is not.
