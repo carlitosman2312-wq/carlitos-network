@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y \
-            build-essential cmake python3 libboost-dev libsqlite3-dev
+            build-essential cmake pkg-config python3 libboost-dev libsqlite3-dev libevent-dev libssl-dev
 
       - name: Configure Carlitos
         run: |
@@ -42,11 +42,11 @@ jobs:
       - name: Run Python reference consensus tests
         run: python3 -m unittest discover -s tests -v
 
-      - name: Run complete CTest suite
-        run: ctest --test-dir build --output-on-failure
-
       - name: Run targeted native consensus tests
         run: build/bin/test_bitcoin --run_test=validation_tests --log_level=message
 
       - name: Smoke test local node, wallet, mining, maturity, and transaction
         run: python3 tests/smoke_node.py
+
+      - name: Run complete CTest suite
+        run: ctest --test-dir build --output-on-failure
