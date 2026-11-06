@@ -66,13 +66,15 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 | Mainnet RPC port | 28446 |
 | P2PKH / P2SH / WIF prefixes | 28 / 50 / 156 |
 | Bech32 HRP | crl |
+| BIP32 extended public/private version bytes | 043c524c / 043c5350 (provisional, custom) |
+| BIP44 coin type / standard derivation path | Not assigned or registered |
 | DNS seeds / fixed seeds | None configured |
 
 The genesis block was computed with zero coinbase value and SHA-256d proof of work. Its hash and parameters pass the Carlitos native unit test. The 0x1e00ffff target is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. This is a provisional bootstrap parameter, not evidence of resistance to a 51% attack. Public launch requires independent security review and meaningful, distributed hash power.
 
 The inherited testnet, testnet4, signet, and regtest modes remain Bitcoin networks, not Carlitos networks. Do not use them as public Carlitos testnets. A separate local -chain=carlitosregtest network is included with easy on-demand mining and its own identity; its C++ parameter/genesis unit test passes. Actual daemon startup, RPC, P2P, and mined-block testing remain pending.
 
-Wallet extended-key prefixes and derivation path/coin type still need finalization. Independent DNS seed operators and a public testnet also remain outstanding.
+Mainnet BIP32 extended-key version bytes are now custom (043c524c public, 043c5350 private), preventing Carlitos mainnet exports from using Bitcoin's standard xpub/xprv version bytes. These custom values are provisional and not registered in SLIP-0132; obtain registry approval before promising compatibility with third-party wallets. No BIP44 coin type or canonical wallet derivation path is assigned yet. SLIP-0044 only adds a coin type when a wallet implementing BIP44 for the coin exists, so a compliant wallet/path plan must precede that registration. Independent DNS seed operators and a public testnet also remain outstanding.
 
 ## Security and launch criteria
 

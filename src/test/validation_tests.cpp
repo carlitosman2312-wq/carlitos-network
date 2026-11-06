@@ -11,6 +11,7 @@
 #include <signet.h>
 #include <uint256.h>
 #include <util/chaintype.h>
+#include <util/strencodings.h>
 #include <validation.h>
 
 #include <string>
@@ -85,6 +86,13 @@ BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
     BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
     BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
     BOOST_CHECK_EQUAL(params.DifficultyAdjustmentInterval(), 2016);
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::PUBKEY_ADDRESS)), "1c");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SCRIPT_ADDRESS)), "32");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SECRET_KEY)), "9c");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::EXT_PUBLIC_KEY)), "043c524c");
+    BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::EXT_SECRET_KEY)), "043c5350");
+    BOOST_CHECK_EQUAL(chainParams->Bech32HRP(), "crl");
+    BOOST_CHECK_EQUAL(chainParams->GetDefaultPort(), 28444);
     BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
                       "00000045c5a492bcf1dc4adaa826bc5d4cdfcc435b822692c92860834a9d94e5");
 

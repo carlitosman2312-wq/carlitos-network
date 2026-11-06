@@ -45,6 +45,7 @@ The fork intentionally changes consensus and mainnet identity, so inherited test
 - `net_peer_connection_tests`: fixed log strings expecting 8333 now use the active chain's configured port; the focused test passed once and observed 28444.
 - `pow_tests`: historical Bitcoin retarget vectors use Bitcoin testnet parameters in a local copy with the min-difficulty exception disabled; follow-up compiled, runtime rerun pending Linux CI.
 - `validation_chainstatemanager_tests`: when Carlitos minimum chainwork is zero, the test no longer subtracts one from unsigned zero (which wrapped to a huge work value); it omits the impossible below-zero-work fixture. The modified suite compiled.
+- Mainnet BIP32 extended-key prefixes are now custom (`043c524c` public, `043c5350` private); 23 public/24 private BIP32 vectors, 3 MuSig synthetic xpub vectors, and 421 public/242 private descriptor key strings were re-encoded without changing key payloads. The new mainnet identity assertions are being added to the targeted validation test. These custom bytes are provisional/unregistered in SLIP-0132.
 - `bip324_tests`: the original Windows run showed failures in cryptographic packet test vectors, unrelated to address prefixes; this still needs reproduction on supported Linux CI before attributing it to project code or toolchain.
 - `univalue_object_test`: could not be started by Windows Application Control.
 - `script_assets_tests`: skipped by CTest.

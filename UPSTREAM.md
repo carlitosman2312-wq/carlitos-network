@@ -35,7 +35,7 @@ The full v32.1 source tree was fetched from the official upstream repository and
 
 1. Run the adapted full C++ suite on Linux CI, verify the chain-aware test fixture changes, and fix any remaining failures (notably the BIP324 crypto-vector suite if reproducible).
 2. Obtain a trusted build environment where the node executable is permitted to run; test startup, RPC, wallet creation, block generation, coinbase maturity, sends, P2P, reorganizations, restart, and recovery.
-3. Finalize unique extended-key prefixes and wallet derivation path/coin type; verify import/export compatibility does not confuse Bitcoin and Carlitos keys.
+3. Mainnet BIP32 extended-key bytes are now distinct (043c524c / 043c5350) and their vectors were migrated, but those custom bytes are provisional and need SLIP-0132 registration. Design a compatible wallet derivation scheme, implement a BIP44-capable wallet path if desired, then request a SLIP-0044 coin type; verify imports cannot confuse Bitcoin and Carlitos keys.
 4. Define independent DNS seed operators and launch a multi-node public testnet.
 5. Obtain independent consensus/security audits, especially of PoW attack economics and difficulty adjustment.
 6. Publish reproducible binaries, checksums, release notes, and node/wallet operator documentation only after the preceding gates pass.

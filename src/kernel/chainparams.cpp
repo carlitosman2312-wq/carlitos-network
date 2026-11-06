@@ -177,8 +177,11 @@ public:
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,28);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,50);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,156);
-        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
-        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
+        // Provisional Carlitos BIP32 serialization versions. These are deliberately distinct
+        // from Bitcoin xpub/xprv and current SLIP-0132 entries; register them before public
+        // wallet interoperability is advertised.
+        base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x3C, 0x52, 0x4C};
+        base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x3C, 0x53, 0x50};
 
         bech32_hrp = "crl";
 

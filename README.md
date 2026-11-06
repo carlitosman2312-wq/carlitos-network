@@ -8,7 +8,8 @@ The objective is a native coin with its own blockchain, nodes, mining, wallets, 
 
 - Bitcoin Core v32.1 source tree imported on branch integration/bitcoin-core-v32.1.
 - Carlitos mainnet genesis, 100 CRLTS initial subsidy, 500,000-block halving schedule, and 100,000,000 CRLTS money range patched in C++.
-- Mainnet network magic, ports, address prefixes, Bech32 HRP, and data directory separated from Bitcoin.
+- Mainnet network magic, ports, address prefixes, Bech32 HRP, extended-key serialization versions, and data directory separated from Bitcoin.
+- Mainnet BIP32 public/private versions use provisional custom bytes `043c524c` / `043c5350`; they are not yet registered in SLIP-0132. BIP44 coin type and canonical derivation path remain unassigned.
 - Separate local -chain=carlitosregtest configured for easy development mining; it is not a public testnet.
 - C++ node, CLI, wallet, and native test binary build successfully with GCC 16.2 / CMake 4.4.5 on the connected Windows PC.
 - Python reference tests: 13/13 pass.
