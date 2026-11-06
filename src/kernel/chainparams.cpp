@@ -250,11 +250,11 @@ public:
         m_assumed_blockchain_size = 0;
         m_assumed_chain_state_size = 0;
 
-        genesis = CreateGenesisBlock(1793923201, 11266668, 0x1e00ffff, 1, 0 * COIN,
+        genesis = CreateGenesisBlock(1793923201, 29115291, 0x1e00ffff, 1, 0 * COIN,
                                      "Carlitos Public Testnet | For development only.");
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7"});
-        assert(genesis.hashMerkleRoot == uint256{"84daa1dedd3c0a686ed59904473d6a68c55524711ea76b22dd9ed99a1b0f706b"});
+        assert(consensus.hashGenesisBlock == uint256{"0000009129f3e4e60f35929099af113e95872cbbcc0c24e45e337599d36a4d70"});
+        assert(genesis.hashMerkleRoot == uint256{"eef6dd71d3010557506d59dcb89cf473625581b0dd9e13c8809d627662046948"});
 
         vFixedSeeds.clear();
         vSeeds.clear(); // Bootstrap manually until independent seed operators are provisioned.
