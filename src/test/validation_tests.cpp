@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(carlitos_testnet_parameters_test)
     BOOST_CHECK(params.fPowAllowMinDifficultyBlocks);
     BOOST_CHECK(!params.fPowNoRetargeting);
     BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
-                      "0000009c9d141915f6416db92bbbf78f67a78213e469973025e89b07b6b6f9c7");
+                      "0000009129f3e4e60f35929099af113e95872cbbcc0c24e45e337599d36a4d70");
     BOOST_CHECK_EQUAL(GetBlockSubsidy(0, params), 0);
     BOOST_CHECK_EQUAL(GetBlockSubsidy(1, params), 100 * COIN);
     BOOST_CHECK(GetNetworkForMagic(chainParams->MessageStart()) == ChainType::CARLITOS_TESTNET);
