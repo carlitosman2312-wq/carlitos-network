@@ -54,7 +54,7 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 | Parameter | Proposed value |
 |---|---|
 | Genesis timestamp | 2026-11-06 00:00:00 UTC (1793923200) |
-| Genesis coinbase message | Carlitos Network - A fair start for everyone. |
+| Genesis coinbase message | Carlitos Network \| A fair start for everyone. |
 | Genesis subsidy | 0 CRLTS |
 | Genesis nBits | 0x1e00ffff |
 | Genesis nonce | 5,677,157 |
