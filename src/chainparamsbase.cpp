@@ -54,6 +54,8 @@ std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const ChainType chain)
         return std::make_unique<CBaseChainParams>("carlitostestnet", 48446);
     case ChainType::CARLITOS_REGTEST:
         return std::make_unique<CBaseChainParams>("carlitosregtest", 38446);
+    case ChainType::BITCOIN_MAIN_TEST:
+        return std::make_unique<CBaseChainParams>("bitcoin-main-test", 18447);
     }
     assert(false);
 }
