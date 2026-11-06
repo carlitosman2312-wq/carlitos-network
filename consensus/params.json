@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "mainnet parameters and subsidy rules patched in C++; C++ build and native tests pending",
+  "consensus_status": "native C++ node build passed; Carlitos native validation_tests 8/8 and Python reference tests 13/13 passed; runtime node tests and full upstream CTest adaptation pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",

@@ -37,4 +37,4 @@ These tests cover issuance boundaries, integer rounding, compact target encoding
 
 ## Current engineering boundary
 
-The Bitcoin Core v32.1 source tree has been imported. Carlitos mainnet chain parameters and subsidy calculation have been patched in C++; C++ tests have been added. The full C++ build, native test_bitcoin suite, functional tests, testnet, and external audit remain pending.
+The Bitcoin Core v32.1 source tree has been imported and the native C++ node build completed successfully (601/601 steps). The native validation_tests suite passes 8/8, including Carlitos mainnet/devnet genesis and total issuance. The separate Python reference suite passes 13/13. The full upstream CTest run passes 95% but has 14 failures and one skipped test, largely due to inherited Bitcoin-specific expectations and the Windows/MSYS2/GCC environment. Daemon startup, RPC, wallet, P2P, mining smoke tests, public testnet, and external audit remain pending.
