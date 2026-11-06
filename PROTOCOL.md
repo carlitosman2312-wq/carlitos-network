@@ -28,11 +28,11 @@
 
 ## Monetary issuance
 
-Subsidy is calculated in integer smallest units only. One CRLTS equals 100,000,000 base units. With the first mined block at height 1, the intended schedule is:
+Subsidy is calculated in integer smallest units only. One CRLTS equals 100,000,000 base units. The genesis block is height 0 and has no reward. The first mined block is height 1 and is the first reward-bearing block (issuance index 0). The schedule is:
 
-`subsidy(height) = (100 * 100,000,000) >> floor(height / 500,000)`
+`subsidy(height) = (100 * 100,000,000) >> floor((height - 1) / 500,000)`
 
-The implementation must define the height boundary explicitly and include consensus test vectors. Subsidy becomes zero when the right shift exhausts the integer reward. Rounding dust is never minted later to force the theoretical 100,000,000 CRLTS asymptote to be reached. The geometric schedule approaches 100 million CRLTS; integer rounding means actual issuance may be slightly lower.
+Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000,000 receive 50 CRLTS, and so on. The implementation must include consensus test vectors at every halving boundary. Subsidy becomes zero when the right shift exhausts the integer reward. Rounding dust is never minted later to force the theoretical 100,000,000 CRLTS asymptote to be reached. The geometric schedule approaches 100 million CRLTS; integer rounding means actual issuance may be slightly lower.
 
 ## Consensus and validation requirements
 
