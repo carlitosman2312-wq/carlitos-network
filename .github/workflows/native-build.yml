@@ -3,10 +3,16 @@ name: Carlitos native build and consensus tests
 on:
   push:
     branches:
-      - "integration/**"
+      - main
   pull_request:
     branches:
       - main
+
+# Keep one current validation run per PR/ref. This prevents push + PR events
+# and rapid commits from building the same native tree repeatedly.
+concurrency:
+  group: carlitos-native-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
