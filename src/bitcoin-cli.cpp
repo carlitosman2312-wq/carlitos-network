@@ -442,6 +442,8 @@ private:
             return " carlitostestnet";
         case ChainType::CARLITOS_REGTEST:
             return " carlitosregtest";
+        case ChainType::BITCOIN_MAIN_TEST:
+            return " bitcoin-main-test";
         case ChainType::MAIN:
             return "";
         }
