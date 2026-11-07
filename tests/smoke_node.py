@@ -188,21 +188,25 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
         nodes["node-b"]["process"].wait(timeout=20)
 
         current_height = int(rpc("node-a", "getblockcount"))
-        if current_height > 2015:
-            raise AssertionError(f"Expected pre-boundary height <= 2015, got {current_height}")
-        blocks_to_boundary = 2015 - current_height
+        if current_height > 2014:
+            raise AssertionError(f"Expected pre-boundary height <= 2014, got {current_height}")
+        blocks_to_boundary = 2014 - current_height
         if blocks_to_boundary:
             rpc(
                 "node-a", "generatetoaddress", str(blocks_to_boundary), mining_address,
                 timeout=180,
             )
-        assert int(rpc("node-a", "getblockcount")) == 2015
+        assert int(rpc("node-a", "getblockcount")) == 2014
 
+        # Give the final block before the period boundary a timestamp well ahead
+        # of its median-time-past. The candidate at height 2016 must not go back
+        # more than MAX_TIMEWARP (600 seconds) from this predecessor.
         previous_hash = rpc("node-a", "getbestblockhash")
         previous_header = json.loads(rpc("node-a", "getblockheader", previous_hash))
         high_time = int(previous_header["time"]) + 3600
         rpc("node-a", "setmocktime", str(high_time))
         rpc("node-a", "generatetoaddress", "1", mining_address)
+        rpc("node-a", "setmocktime", "0")
         boundary_previous_hash = rpc("node-a", "getbestblockhash")
         boundary_previous = json.loads(
             rpc("node-a", "getblockheader", boundary_previous_hash)
@@ -216,8 +220,6 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
         assert (
             int(boundary_previous["time"]) - candidate_time > 600
         ), "BIP94 test setup did not create a 600-second timewarp"
-        rpc("node-a", "setmocktime", "0")
-
         bits = int(boundary_previous["bits"], 16)
         version = int(boundary_previous["version"]) & 0xFFFFFFFF
         header_prefix = (
