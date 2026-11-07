@@ -12,7 +12,40 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <vector>
+
 BOOST_FIXTURE_TEST_SUITE(pow_tests, BasicTestingSetup)
+
+BOOST_AUTO_TEST_CASE(carlitos_testnet_bip94_retarget_anchor)
+{
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::CARLITOS_TESTNET);
+    const auto& consensus = chainParams->GetConsensus();
+    BOOST_REQUIRE(consensus.enforce_BIP94);
+
+    const int interval = consensus.DifficultyAdjustmentInterval();
+    std::vector<CBlockIndex> blocks(interval * 2);
+    for (int height = 0; height < interval * 2; ++height) {
+        CBlockIndex& block = blocks[height];
+        block.nHeight = height;
+        block.pprev = height == 0 ? nullptr : &blocks[height - 1];
+        block.nTime = 1'000'000 + height * consensus.nPowTargetSpacing;
+        block.nBits = 0x1e00ffff;
+    }
+
+    // The first block of the period retains the real difficulty, while a late
+    // minimum-difficulty block at the end of the period must not reset it.
+    blocks[interval].nBits = 0x1d00ffff;
+    blocks.back().nBits = 0x1e00ffff;
+
+    const unsigned int anchored_nbits = CalculateNextWorkRequired(
+        &blocks.back(), blocks[interval].GetBlockTime(), consensus);
+    auto legacy_consensus = consensus;
+    legacy_consensus.enforce_BIP94 = false;
+    const unsigned int last_block_nbits = CalculateNextWorkRequired(
+        &blocks.back(), blocks[interval].GetBlockTime(), legacy_consensus);
+
+    BOOST_CHECK_NE(anchored_nbits, last_block_nbits);
+}
 
 /* Test calculation of next difficulty target with no constraints applying */
 BOOST_AUTO_TEST_CASE(get_next_work)

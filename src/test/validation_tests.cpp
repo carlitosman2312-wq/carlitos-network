@@ -113,6 +113,7 @@ BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
     BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
     BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
     BOOST_CHECK_EQUAL(params.DifficultyAdjustmentInterval(), 2016);
+    BOOST_CHECK(params.enforce_BIP94);
     BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::PUBKEY_ADDRESS)), "1c");
     BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SCRIPT_ADDRESS)), "32");
     BOOST_CHECK_EQUAL(HexStr(chainParams->Base58Prefix(CChainParams::SECRET_KEY)), "9c");
@@ -152,6 +153,7 @@ BOOST_AUTO_TEST_CASE(carlitos_testnet_parameters_test)
     BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
     BOOST_CHECK_EQUAL(params.DifficultyAdjustmentInterval(), 2016);
     BOOST_CHECK(params.fPowAllowMinDifficultyBlocks);
+    BOOST_CHECK(params.enforce_BIP94);
     BOOST_CHECK(!params.fPowNoRetargeting);
     BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
                       "0000009129f3e4e60f35929099af113e95872cbbcc0c24e45e337599d36a4d70");
@@ -174,6 +176,7 @@ BOOST_AUTO_TEST_CASE(carlitos_regtest_parameters_test)
     BOOST_CHECK_EQUAL(params.nPowTargetSpacing, 600);
     BOOST_CHECK_EQUAL(params.nPowTargetTimespan, 14 * 24 * 60 * 60);
     BOOST_CHECK(params.fPowAllowMinDifficultyBlocks);
+    BOOST_CHECK(params.enforce_BIP94);
     BOOST_CHECK(params.fPowNoRetargeting);
     BOOST_CHECK_EQUAL(params.hashGenesisBlock.GetHex(),
                       "5d5121cdfe632e15ad65a990d2991d471003eee6a02aba1a941c7f0cc3439a76");

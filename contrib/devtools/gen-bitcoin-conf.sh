@@ -54,11 +54,12 @@ EOF
 HELP_STATUS=0
 HELP_OUTPUT=$("${BITCOIND}" --help 2>&1) || HELP_STATUS=$?
 if [[ "${HELP_OUTPUT}" != *"Options:"* ]]; then
-  printf '%s\\n' "${HELP_OUTPUT}" >&2
+  printf '%s\n' "${HELP_OUTPUT}" >&2
   echo "Unable to read help output from ${BITCOIND}." >&2
-  exit "${HELP_STATUS:-1}"
+  if [ "${HELP_STATUS}" -eq 0 ]; then HELP_STATUS=1; fi
+  exit "${HELP_STATUS}"
 fi
-printf '%s\\n' "${HELP_OUTPUT}" \
+printf '%s\n' "${HELP_OUTPUT}" \
     | sed '1,/Options:/d' \
     | sed -E '/^[[:space:]]{2}-help/,/^[[:space:]]*$/d' \
     | sed -E 's/^[[:space:]]{2}\-/#/' \

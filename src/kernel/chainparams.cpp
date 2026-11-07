@@ -255,7 +255,8 @@ public:
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
-        consensus.enforce_BIP94 = false;
+        // Enforce BIP94 timestamp protection from genesis on the new mainnet.
+        consensus.enforce_BIP94 = true;
         consensus.fPowNoRetargeting = false;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
@@ -355,7 +356,9 @@ public:
         // Permit minimum-difficulty blocks after long idle periods, but keep
         // normal retargeting enabled so the public testnet exercises the DAA.
         consensus.fPowAllowMinDifficultyBlocks = true;
-        consensus.enforce_BIP94 = false;
+        // Anchor retarget difficulty to the period's first block and enforce the
+        // BIP94 timestamp rule, preventing end-of-period min-difficulty resets.
+        consensus.enforce_BIP94 = true;
         consensus.fPowNoRetargeting = false;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -880,7 +883,8 @@ public:
         consensus.nPowTargetTimespan = 14 * 24 * 60 * 60;
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
-        consensus.enforce_BIP94 = false;
+        // Keep the development network aligned with Carlitos' timestamp rule.
+        consensus.enforce_BIP94 = true;
         consensus.fPowNoRetargeting = true;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;

@@ -121,8 +121,9 @@ struct Params {
     uint256 powLimit;
     bool fPowAllowMinDifficultyBlocks;
     /**
-      * Enforce BIP94 timewarp attack mitigation. On testnet4 this also enforces
-      * the block storm mitigation.
+      * Enforce the BIP94 timewarp timestamp rule. On networks that allow minimum-
+      * difficulty blocks, this also anchors retargets to the first block of the
+      * period to prevent end-of-period difficulty resets.
       */
     bool enforce_BIP94;
     bool fPowNoRetargeting;

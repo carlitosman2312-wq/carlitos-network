@@ -52,18 +52,17 @@ jobs:
           BITCOIND="$PWD/build/bin/bitcoind" \
             contrib/devtools/gen-bitcoin-conf.sh
           test -s "$RUNNER_TEMP/carlitos.conf"
-          # Help text wraps long port descriptions, so check the testnet name and
-          # port value independently instead of assuming they share one line.
-          grep -nE 'default: 28444|carlitostestnet:|48444|carlitosregtest: 38444|default: 28446|carlitostestnet: 48446|carlitosregtest: 38446|\\[carlitostestnet\\]|\\[carlitosregtest\\]' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'default: 28444' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'carlitostestnet:' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq '48444' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'carlitosregtest: 38444' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'default: 28446' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'carlitostestnet: 48446' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq 'carlitosregtest: 38446' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq '[carlitostestnet]' "$RUNNER_TEMP/carlitos.conf"
-          grep -Fq '[carlitosregtest]' "$RUNNER_TEMP/carlitos.conf"
+          generated_conf=$(tr '\n' ' ' < "$RUNNER_TEMP/carlitos.conf")
+          for expected in \
+            'default: 28444' 'carlitostestnet: 48444' 'carlitosregtest: 38444' \
+            'default: 28446' 'carlitostestnet: 48446' 'carlitosregtest: 38446' \
+            '[carlitostestnet]' '[carlitosregtest]'; do
+            case "$generated_conf" in
+              *"$expected"*) ;;
+              *) echo "Generated carlitos.conf is missing: $expected" >&2; exit 1 ;;
+            esac
+          done
+          echo "Generated Carlitos P2P/RPC ports and network sections verified."
 
       - name: Run Python reference consensus tests
         run: python3 -m unittest discover -s tests -v
