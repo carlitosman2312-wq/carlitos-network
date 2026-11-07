@@ -46,9 +46,10 @@ Check the result:
 ./build/bin/bitcoin-cli -chain=carlitostestnet getnetworkinfo
 ./build/bin/bitcoin-cli -chain=carlitostestnet getpeerinfo
 ./build/bin/bitcoin-cli -chain=carlitostestnet getblockchaininfo
+./build/bin/bitcoin-cli -chain=carlitostestnet getblockhash 0
 ```
 
-An operator should verify that the peer's reported network and genesis agree with this repository before accepting it as a Carlitos peer. Never connect a node to an unknown network solely because it uses the expected port.
+The expected Carlitos public-testnet genesis hash is `0000009129f3e4e60f35929099af113e95872cbbcc0c24e45e337599d36a4d70`. Check that `getblockhash 0` returns exactly this value on every operator's node before connecting it to peers. An operator should also verify the selected chain name and peer identity. Never connect a node to an unknown network solely because it uses the expected port.
 
 ## Wallet testing
 
