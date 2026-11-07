@@ -1,62 +1,69 @@
 # Carlitos validation status
 
-Run date: 2026-11-06  
-Source branch: integration/bitcoin-core-v32.1  
+Last verified: 2026-11-06 (GitHub Actions)  
+Source branch: `integration/bitcoin-core-v32.1`  
+Validated commit: `cea5d19206e3b98475d077e8a7361b3c96d0dd1a`  
 Upstream baseline: Bitcoin Core v32.1
 
-## Build environment
+## Current supported-platform validation
 
-- Windows PC connected through the user's authorized remote desktop.
-- GCC 16.2.0 (MSYS2 UCRT64)
-- CMake 4.4.5
-- Ninja 1.13.2
-- SQLite 3.54.1, Boost 1.92.0
-- Configure command: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_GUI=OFF -DBUILD_TESTS=ON -DBUILD_BENCH=OFF -DWITH_ZMQ=OFF -DENABLE_IPC=OFF -DWITH_CCACHE=OFF
-- Build command: cmake --build build --parallel 2
-
-## Results
+The post-fix Linux CI run supersedes the earlier Windows-only pending results.
 
 | Check | Result |
 |---|---|
-| CMake configure | Passed |
-| Native build | Passed, 601/601 steps |
-| Python consensus reference | Passed, 13/13 |
-| Native validation suite | 8/8 passed before the latest public-testnet additions; rerun pending Linux CI |
-| Carlitos mainnet parameter/genesis and BIP32 prefix assertions | Compiled; earlier genesis/consensus test passed |
-| Carlitos public-testnet parameter/genesis test | Added and compiled; runtime execution pending |
-| Carlitos regtest parameter/genesis and address-prefix assertions | Compiled; earlier regtest genesis test passed before HRP update |
-| Carlitos total issuance test | Passed in earlier native validation run |
-| Full upstream CTest baseline (before fork-specific test adaptations) | 95% passed; 14 failed; 1 skipped; complete post-fix rerun pending Linux CI |
-| Daemon runtime smoke test on Windows | Blocked by Windows Application Control |
-| Python smoke-test syntax | Passed (`py_compile`) |
-| Linux end-to-end node smoke test | Added to GitHub Actions; result pending |
-| GitHub push | Passed; branch is tracking origin |
+| Ubuntu 24.04 CMake configure | Passed |
+| Native build (node, CLI, wallet, native test binary) | Passed |
+| Python reference consensus suite | Passed, 13/13 |
+| Targeted native consensus validation test | Passed |
+| Local `carlitosregtest` daemon/RPC smoke test | Passed |
+| Wallet creation and `rcrl1` address generation | Passed |
+| Mining and coinbase maturity | Passed; balance remained 0 at height 100 and matured to 100 CRLTS at height 101 |
+| Additional block reward | Passed; second reward matured at height 102 |
+| Wallet spend and confirmation | Passed; transaction confirmed at height 103 |
+| Full CTest suite | 373 passed, 1 skipped, 0 failed (374 discovered) |
+| `descriptor_tests` | Passed |
+| `bip324_tests` | Passed |
+| `script_assets_tests` | Skipped by CTest (the single skipped test) |
 
-## Why the full CTest suite is not green yet
+Evidence:
+- Native build and CTest workflow: [run #40](https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42233327155)
+- Python reference workflow: [run #34](https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42233327056)
 
-The fork intentionally changes consensus and mainnet identity, so inherited tests that hard-code Bitcoin expectations need chain-aware fixtures. The initial full CTest run was a baseline only; the following source-level adaptations have since been compiled, but cannot be rerun on the Windows host because Application Control blocks the rebuilt test executable:
+The CTest log ends with `100% tests passed, 0 tests failed out of 374` and explicitly lists test 311, `script_assets_tests`, as skipped. Therefore the accurate summary is 373 passed, 1 skipped, 0 failed—not 374 executed tests passing.
 
-- `key_io_tests`: 18 mainnet address/WIF vectors in `key_io_valid.json` were re-encoded with Carlitos Base58 versions 28/50/156 and Bech32 HRP `crl`, preserving the underlying hashes and private keys.
-- `script_standard_tests`: the deterministic Taproot address and seven BIP341 `bip350Address` vectors were re-encoded for `crl`; scriptPubKey and Taproot commitments were not changed.
-- `key_tests`, `bloom_tests`, and `descriptor_tests`: valid mainnet WIF fixtures were re-encoded to Carlitos version 156 while retaining the same secret-key bytes (four key-test WIFs, one bloom WIF, and 31 descriptor WIFs). P2PKH expected addresses in key tests were also re-encoded to version 28.
-- `rpc_tests` and `util_tests`: their hard-coded mainnet P2SH/P2PKH addresses and WIF fixtures were re-encoded to Carlitos prefixes; signature and private-key payloads remain the same.
-- `miner_tests`: its fixed pre-mined block fixtures are now run on isolated Bitcoin regtest parameters, because Carlitos' changed coinbase subsidy changes the coinbase txid/Merkle root and invalidates the old precomputed nonces. This is test-only; it does not change Carlitos mainnet PoW.
-- `transaction_tests`: two inherited `BADTX` fixtures had outputs above Bitcoin's 21-million limit but below Carlitos' 100-million limit. They were moved to Carlitos MAX_MONEY + 1 and MAX_MONEY plus a second positive output, respectively. CMake regenerated `tx_invalid.json.h` and rebuilt the native test binary.
-- `util_tests/util_ParseMoney`: the maximum-money vector now accepts exactly 100,000,000 CRLTS and rejects one base unit above it; this focused test passed once before Windows began blocking the rebuilt executable.
-- `net_peer_connection_tests`: fixed log strings expecting 8333 now use the active chain's configured port; the focused test passed once and observed 28444.
-- `pow_tests`: historical Bitcoin retarget vectors use Bitcoin testnet parameters in a local copy with the min-difficulty exception disabled; follow-up compiled, runtime rerun pending Linux CI.
-- `validation_chainstatemanager_tests`: when Carlitos minimum chainwork is zero, the test no longer subtracts one from unsigned zero (which wrapped to a huge work value); it omits the impossible below-zero-work fixture. The modified suite compiled.
-- Mainnet BIP32 extended-key prefixes are custom (`043c524c` public, `043c5350` private); public testnet uses `043c544c` / `043c5550`; regtest uses `043c524d` / `043c5351`. Mainnet fixtures include 23 public/24 private BIP32 vectors, 3 MuSig synthetic xpub vectors, and 421 public/242 private descriptor key strings re-encoded without changing key payloads. Mainnet and testnet parameter tests now assert their serialized versions. These values are provisional and not registered in SLIP-0132; do not promise third-party wallet interoperability.
-- `bip324_tests`: the original Windows run showed failures in cryptographic packet test vectors, unrelated to address prefixes; this still needs reproduction on supported Linux CI before attributing it to project code or toolchain.
-- `univalue_object_test`: could not be started by Windows Application Control.
-- `script_assets_tests`: skipped by CTest.
+## Windows host note
 
-Do not infer from the 95% total that the entire upstream suite is correct for Carlitos. The targeted Carlitos native consensus suite passed, but fork-wide test adaptation and supported-platform reproduction are still required.
+The connected Windows PC previously completed a native 601/601-step build with GCC 16.2.0, CMake 4.4.5, and Ninja 1.13.2. However, Windows Application Control blocked launching the newly rebuilt executables on that host. This local policy was not bypassed. The supported Ubuntu CI run now supplies the native execution evidence that the Windows host could not provide.
 
-## Important runtime boundary
+## Earlier CTest failures and adaptations
 
-The node executables were successfully linked, but the Windows host blocked launching the newly built daemon binary. No attempt was made to bypass that local security policy. Consequently, the node has not yet been observed starting, opening RPC/P2P ports, creating a wallet, mining a block, or processing a live transaction.
+The initial Windows full-suite run was a baseline, not the final state. The initial failures prompted chain-aware test updates; the post-fix Linux run now passes the full supported CTest suite, apart from the explicitly skipped script-assets test.
 
-## Current conclusion
+The adaptations include:
+- Re-encoding mainnet Base58/WIF and Bech32 vectors for Carlitos address prefixes while preserving key/hash payloads.
+- Re-encoding Taproot address vectors for the Carlitos Bech32 HRP.
+- Re-encoding WIF fixtures in key, bloom, and descriptor tests while preserving private-key bytes.
+- Updating RPC and utility fixtures to Carlitos P2PKH/P2SH/WIF prefixes.
+- Running inherited fixed pre-mined block fixtures against isolated Bitcoin regtest parameters where the Carlitos coinbase subsidy changes the transaction ID and Merkle root.
+- Updating invalid-transaction fixtures to test the Carlitos 100,000,000 CRLTS money limit.
+- Making peer-port assertions use the selected chain's configured port.
+- Running historical proof-of-work retarget vectors against an isolated Bitcoin testnet parameter copy.
+- Avoiding unsigned underflow in the zero-minimum-chainwork fixture.
+- Adding and validating distinct Carlitos mainnet, public-testnet, and local-regtest extended-key serialization prefixes.
 
-The monetary parameters and genesis assertions compile and pass their targeted C++ validation tests. The code is an experimental native-node fork, not a public testnet or mainnet release. Do not use real funds or describe CRLTS as launched.
+## Remaining launch and security blockers
+
+Green CI means the current native prototype builds and passes its present automated checks. It does **not** mean the network is ready for real funds or public launch.
+
+Outstanding work includes:
+- Deploying a public Carlitos testnet with independent nodes and seed operators; current testnet bootstrap has no DNS/fixed seeds and requires manual `-addnode`.
+- Assigning and documenting a canonical wallet derivation path and BIP44 coin type.
+- Reviewing the provisional custom BIP32 extended-key version bytes with wallet implementers and the relevant registry; interoperability is not established.
+- Testing multi-node P2P behavior, peer discovery, sustained mining, difficulty transitions, reorganizations, backups, and wallet recovery under realistic conditions.
+- Obtaining independent consensus, cryptographic, and security review.
+- Reviewing the proposed proof-of-work limit. The current `0x1e00ffff` target is 256 times easier than Bitcoin's historic difficulty-1 target and is not a security guarantee.
+- Preparing reproducible release binaries, checksums, operator instructions, monitoring, incident response, and a launch plan only after the above items are addressed.
+
+## Conclusion
+
+The native build, reference tests, local single-node regtest smoke test, and complete CTest suite are green on Ubuntu 24.04. The project remains an experimental Bitcoin Core-derived prototype. No public testnet or mainnet is deployed; do not use real funds or describe CRLTS as launched.
