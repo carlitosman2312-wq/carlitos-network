@@ -244,30 +244,36 @@ BOOST_AUTO_TEST_CASE(util_ParseParameters)
 BOOST_AUTO_TEST_CASE(util_GetUnrecognizedSections)
 {
     TestArgsManager test;
-    test.SetupArgs({{"-server", ArgsManager::ALLOW_ANY}});
+    test.SetupArgs({{"-port", ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY}});
     test.ReadConfigString(
         "[main]\n"
-        "server=1\n"
+        "port=28444\n"
         "[test]\n"
-        "server=1\n"
+        "port=18333\n"
         "[testnet4]\n"
-        "server=1\n"
+        "port=48333\n"
         "[signet]\n"
-        "server=1\n"
+        "port=38333\n"
         "[regtest]\n"
-        "server=1\n"
+        "port=18444\n"
         "[carlitostestnet]\n"
-        "server=1\n"
+        "port=48444\n"
         "[carlitosregtest]\n"
-        "server=1\n"
+        "port=38444\n"
         "[bitcoin-main-test]\n"
-        "server=1\n"
+        "port=8333\n"
         "[unknown]\n"
-        "server=1\n");
+        "port=99999\n");
 
     const auto unrecognized = test.GetUnrecognizedSections();
     BOOST_REQUIRE_EQUAL(unrecognized.size(), 1U);
     BOOST_CHECK_EQUAL(unrecognized.front().m_name, "unknown");
+
+    // Carlitos-specific NETWORK_ONLY settings must be read from their own sections.
+    test.SelectConfigNetwork("carlitostestnet");
+    BOOST_CHECK_EQUAL(test.GetArg("-port", ""), "48444");
+    test.SelectConfigNetwork("carlitosregtest");
+    BOOST_CHECK_EQUAL(test.GetArg("-port", ""), "38444");
 }
 
 BOOST_AUTO_TEST_CASE(util_ParseInvalidParameters)
