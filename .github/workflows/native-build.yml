@@ -52,17 +52,32 @@ jobs:
           BITCOIND="$PWD/build/bin/bitcoind" \
             contrib/devtools/gen-bitcoin-conf.sh
           test -s "$RUNNER_TEMP/carlitos.conf"
-          generated_conf=$(tr '\n' ' ' < "$RUNNER_TEMP/carlitos.conf")
-          for expected in \
-            'default: 28444' 'carlitostestnet: 48444' 'carlitosregtest: 38444' \
-            'default: 28446' 'carlitostestnet: 48446' 'carlitosregtest: 38446' \
-            '[carlitostestnet]' '[carlitosregtest]'; do
-            case "$generated_conf" in
-              *"$expected"*) ;;
-              *) echo "Generated carlitos.conf is missing: $expected" >&2; exit 1 ;;
-            esac
-          done
-          echo "Generated Carlitos P2P/RPC ports and network sections verified."
+          python3 - "$RUNNER_TEMP/carlitos.conf" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          path = Path(sys.argv[1])
+          generated = re.sub(r"[\s#]+", " ", path.read_text(encoding="utf-8"))
+          expected = (
+              "default: 28444",
+              "carlitostestnet: 48444",
+              "carlitosregtest: 38444",
+              "default: 28446",
+              "carlitostestnet: 48446",
+              "carlitosregtest: 38446",
+              "[carlitostestnet]",
+              "[carlitosregtest]",
+          )
+          missing = [item for item in expected if item not in generated]
+          if missing:
+              print("Relevant generated configuration lines:")
+              for line in path.read_text(encoding="utf-8").splitlines():
+                  if any(term in line.lower() for term in ("carlitos", "28444", "28446", "38444", "38446", "48444", "48446")):
+                      print(line)
+              raise SystemExit(f"Generated carlitos.conf is missing: {missing}")
+          print("Generated Carlitos P2P/RPC ports and network sections verified.")
+          PY
 
       - name: Run Python reference consensus tests
         run: python3 -m unittest discover -s tests -v
