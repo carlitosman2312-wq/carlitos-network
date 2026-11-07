@@ -1,17 +1,18 @@
 # Carlitos Network (CRLTS)
 
-> Independent Bitcoin-style proof-of-work blockchain. The native node source compiles and targeted consensus unit tests pass; runtime validation and public launch remain pending.
+> Independent Bitcoin-style proof-of-work blockchain. Ubuntu 24.04 CI has passed the native build, consensus checks, local regtest node/wallet/mining/spend smoke test, and full CTest suite (373 passed, 1 skipped, 0 failed). Public testnet deployment and launch review remain pending.
 
 ## Status
 
-- Phase: native-node prototype and consensus unit tests
+- Phase: native-node prototype with green supported-platform CI; pre-launch engineering and review
 - Network: Carlitos Network
 - Native asset: CRLTS
 - Consensus: SHA-256 Proof of Work with Bitcoin Core-derived chain validation
 - Premine: none
 - Mainnet: not launched
 - Local development chain: carlitosregtest configured; its genesis and parameters pass native unit tests
-- Runtime node test: blocked on the connected Windows PC by Application Control
+- Local runtime smoke test: passed on Ubuntu 24.04 CI (node startup, RPC, wallet, mining, maturity, and confirmed spend on carlitosregtest)
+- Windows host note: Application Control still blocks the rebuilt executables on that PC; the local security policy was not bypassed
 
 ## Initial protocol parameters
 
@@ -46,7 +47,7 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 5. Validate block timestamps, median-time-past, future-time bounds, compact target encoding, proof-of-work limit, and difficulty transitions.
 6. Validate coinbase subsidy plus fees, transaction inputs/outputs, scripts, and inherited consensus rules.
 7. Use integer arithmetic; never use floating point for monetary values.
-8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. End-to-end wallet maturity testing remains pending.
+8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. The CI smoke test verified an immature balance at height 100 and maturity at height 101 on carlitosregtest.
 9. The genesis block has no spendable premine. Its timestamp, message, merkle root, nonce, and hash are set in the C++ parameters and checked by native unit tests.
 
 ## Proposed mainnet identity (not a launch approval)
