@@ -4,6 +4,7 @@
 
 #include <chainparams.h>
 #include <chainparamsbase.h>
+#include <common/args.h>
 #include <consensus/amount.h>
 #include <consensus/merkle.h>
 #include <core_io.h>
@@ -82,8 +83,17 @@ BOOST_AUTO_TEST_CASE(carlitos_chain_data_directories_are_isolated)
     const auto testnet = CreateBaseChainParams(ChainType::CARLITOS_TESTNET);
     const auto regtest = CreateBaseChainParams(ChainType::CARLITOS_REGTEST);
 
-    // GetDefaultDataDir() is namespaced to Carlitos by common/args.cpp.
-    // Mainnet uses that root directly; the development chains use isolated child directories.
+    // Verify the actual default root is namespaced to Carlitos, not Bitcoin Core.
+    ArgsManager default_args;
+    const auto default_root = default_args.GetDataDirBase();
+    BOOST_CHECK(default_root.is_absolute());
+#if defined(WIN32) || defined(__APPLE__)
+    BOOST_CHECK_EQUAL(default_root.filename().string(), "Carlitos");
+#else
+    BOOST_CHECK_EQUAL(default_root.filename().string(), ".carlitos");
+#endif
+
+    // Mainnet uses the Carlitos root directly; development chains use isolated child directories.
     BOOST_CHECK(mainnet->DataDir().empty());
     BOOST_CHECK_EQUAL(testnet->DataDir(), "carlitostestnet");
     BOOST_CHECK_EQUAL(regtest->DataDir(), "carlitosregtest");
