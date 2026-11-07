@@ -1,15 +1,22 @@
 # Carlitos Network (CRLTS)
 
-> Independent Bitcoin-style proof-of-work blockchain. This repository currently contains the protocol design baseline, not a runnable or launched cryptocurrency.
+> Independent Bitcoin-style proof-of-work blockchain. Ubuntu 24.04 CI has passed the native build, consensus checks, two-node regtest P2P/wallet/mining/spend smoke test, and full CTest suite (373 passed, 1 skipped, 0 failed). Public testnet deployment and launch review remain pending.
 
 ## Status
 
-- Phase: protocol specification and repository bootstrap
+- Phase: native-node prototype with green supported-platform CI; pre-launch engineering and review
 - Network: Carlitos Network
 - Native asset: CRLTS
-- Consensus direction: Proof of Work (SHA-256), Bitcoin Core-derived implementation
+- Consensus: SHA-256 Proof of Work with Bitcoin Core-derived chain validation
 - Premine: none
 - Mainnet: not launched
+- Local development chain: carlitosregtest configured; its genesis and parameters pass native unit tests
+- Local runtime smoke test: passed on Ubuntu 24.04 CI (two nodes connected; blocks and mempool transaction propagated; wallets, `rcrl` addresses, mining, 100-block maturity, and confirmed spend on `carlitosregtest`)
+- Windows host note: Application Control still blocks the rebuilt executables on that PC; the local security policy was not bypassed
+
+## Latest automated validation
+
+The current draft PR head, `1aff7ff030db0f45a044087fa53803849fde5198`, passed GitHub Actions on Ubuntu 24.04: native workflow #57 and reference workflow #51. The native run built node/CLI/wallet/test binaries, verified generated `carlitos.conf`, passed the Python reference suite (13/13), targeted native validation tests (10 Boost cases), BIP94 period-start retarget regression, two-node regtest smoke including timestamp rejection at height 2016, and full CTest (373 passed, 1 skipped, 0 failed of 374 discovered). See `TEST_STATUS.md` for run links and remaining launch blockers.
 
 ## Initial protocol parameters
 
@@ -25,51 +32,67 @@
 | Subsidy at genesis | 0 CRLTS |
 | Premine | 0 CRLTS |
 | Transaction fees | Paid to the block miner |
+| Coinbase maturity | 100 blocks (inherited Bitcoin Core rule) |
 
 ## Monetary issuance
 
 Subsidy is calculated in integer smallest units only. One CRLTS equals 100,000,000 base units. The genesis block is height 0 and has no reward. The first mined block is height 1 and is the first reward-bearing block (issuance index 0). The schedule is:
 
-`subsidy(height) = (100 * 100,000,000) >> floor((height - 1) / 500,000)`
+subsidy(height) = (100 * 100,000,000) >> floor((height - 1) / 500,000)
 
-Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000,000 receive 50 CRLTS, and so on. The implementation must include consensus test vectors at every halving boundary. Subsidy becomes zero when the right shift exhausts the integer reward. Rounding dust is never minted later to force the theoretical 100,000,000 CRLTS asymptote to be reached. The geometric schedule approaches 100 million CRLTS; integer rounding means actual issuance may be slightly lower.
+Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000,000 receive 50 CRLTS, and so on. Subsidy becomes zero when the right shift exhausts the integer reward. Rounding dust is never minted later to force the theoretical 100,000,000 CRLTS asymptote to be reached. The integer schedule issues 99,999,999.945 CRLTS in total. The native test for this total passes.
 
-## Consensus and validation requirements
+## Consensus and validation rules
 
 1. Use Bitcoin-style SHA-256 proof of work and cumulative-chainwork fork choice.
 2. Target spacing is 600 seconds.
 3. Retarget every 2,016 blocks against a 1,209,600-second target timespan.
-4. If adopting Bitcoin's 4x/¼ retarget clamps, document and test exact boundary and off-by-one behavior before activation.
+4. The implementation inherits Bitcoin Core's four-times/one-quarter actual-timespan clamp and integer target calculation.
 5. Validate block timestamps, median-time-past, future-time bounds, compact target encoding, proof-of-work limit, and difficulty transitions.
-6. Validate coinbase subsidy plus fees, transaction inputs/outputs, scripts, and all inherited consensus rules.
+6. Validate coinbase subsidy plus fees, transaction inputs/outputs, scripts, and inherited consensus rules.
 7. Use integer arithmetic; never use floating point for monetary values.
-8. Define coinbase maturity explicitly (proposed Bitcoin-like default: 100 blocks) and test it.
-9. Genesis block has no spendable premine. Its exact timestamp, headline/message, merkle root, nonce, and resulting hash must be generated and verified after network parameters are finalized. Do not invent or pre-fill a genesis hash.
+8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. The two-node CI smoke test verified an immature balance at height 100, maturity at height 101, and a spend confirmed at height 103 on `carlitosregtest`.
+9. The genesis block has no spendable premine. Its timestamp, message, merkle root, nonce, and hash are set in the C++ parameters and checked by native unit tests.
+10. The BIP94 timestamp guard is active from genesis on all Carlitos networks: the first block of each 2,016-block difficulty period cannot be timestamped more than 600 seconds behind its predecessor. On public testnet, retarget uses the first block's period difficulty so a minimum-difficulty block at the period end cannot reset the next period's baseline.
 
-## Network parameters still to be finalized
+## Proposed mainnet identity (not a launch approval)
 
-- Mainnet and testnet message-start bytes (network magic)
-- P2P and RPC ports
-- Base58 address prefixes and Bech32 human-readable prefix
-- DNS seed operators and seed hostnames
-- Genesis timestamp and coinbase message
-- Proof-of-work limit and exact retarget clamp semantics
-- Wallet derivation and descriptor defaults
-- Protocol versioning and activation policy for inherited Bitcoin features
+| Parameter | Proposed value |
+|---|---|
+| Genesis timestamp | 2026-11-06 00:00:00 UTC (1793923200) |
+| Genesis coinbase message | Carlitos Network \| A fair start for everyone. |
+| Genesis subsidy | 0 CRLTS |
+| Genesis nBits | 0x1e00ffff |
+| Genesis nonce | 5,677,157 |
+| Genesis merkle root | 6fb2576a8861ef3c2b3abcbaccbf4b33e9f0999cb1203cca7f20419feea1eaf0 |
+| Genesis block hash | 00000045c5a492bcf1dc4adaa826bc5d4cdfcc435b822692c92860834a9d94e5 |
+| Proof-of-work limit | 000000ffff000000000000000000000000000000000000000000000000000000 |
+| Mainnet message-start bytes | c3 4c 54 53 |
+| Mainnet P2P port | 28444 |
+| Mainnet RPC port | 28446 |
+| P2PKH / P2SH / WIF prefixes | 28 / 50 / 156 |
+| Bech32 HRP | crl |
+| BIP32 extended public/private version bytes | 043c524c / 043c5350 (provisional, custom) |
+| BIP44 coin type / standard derivation path | CRLTS-specific value not assigned; current wallet still uses Bitcoin coin type `0'` on mainnet and `1'` on test chains |
+| DNS seeds / fixed seeds | None configured |
 
-These values must be unique, documented, and covered by tests before a public network launch.
+The genesis block was computed with zero coinbase value and SHA-256d proof of work. Its hash and parameters pass the Carlitos native unit test. The 0x1e00ffff target is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. This is a provisional bootstrap parameter, not evidence of resistance to a 51% attack. Public launch requires independent security review and meaningful, distributed hash power.
+
+The inherited testnet, testnet4, signet, and regtest modes remain Bitcoin networks, not Carlitos networks. Carlitos now has two separate development networks: `-chain=carlitostestnet` is a public-testnet parameter set (P2P 48444, RPC 48446, HRP `tcrl`, separate genesis, normal 10-minute retargeting with minimum-difficulty blocks allowed and BIP94 period-start difficulty anchoring); `-chain=carlitosregtest` remains local instant-mining (P2P 38444, RPC 38446, HRP `rcrl`). The public-testnet parameters have no DNS/fixed seeds yet, so nodes must be connected manually with `-addnode` until independent seed operators are provisioned. `TESTNET_OPERATIONS.md` documents safe private operator testing; no public testnet nodes are deployed or running yet.
+
+Mainnet BIP32 extended-key version bytes are custom (043c524c public, 043c5350 private), but remain provisional and are not registered in SLIP-0132. The default wallet descriptor generator still uses Bitcoin's derivation purposes and coin types: `m/44'/0'/0'/0/*`, `m/49'/0'/0'/0/*`, `m/84'/0'/0'/0/*`, and `m/86'/0'/0'/0/*` for mainnet address types; test chains use coin type `1'`. Thus the CRLTS wallet key space is not yet isolated from Bitcoin's when the same seed is reused. A CRLTS-specific BIP44 path/coin type must be selected and implemented before real funds are used. BIP44's guidance says a coin type is requested after a wallet implementing the standard exists; SLIP-0044 is the registry. Independent DNS seed operators and a public testnet also remain outstanding.
 
 ## Security and launch criteria
 
 A new SHA-256 PoW network is vulnerable if its honest hashrate is small or concentrated. ASIC availability does not itself secure a chain: independent miners, diverse operators, monitoring, and a realistic attack-response plan are required. Never advertise the chain as secure or production-ready before independent review and public testing.
 
 Before mainnet:
-- Build reproducibly on supported platforms.
-- Add unit, functional, consensus, and regression tests.
+- Adapt all inherited test vectors to the Carlitos network identity and consensus rules.
+- Run a supported-platform native build and the relevant test suite without unresolved failures.
+- Two-node local regtest startup, RPC, wallets, block propagation, mempool relay, mining, coinbase maturity, and a confirmed spend are covered by CI. Still test public-testnet peer discovery, sustained mining, difficulty transitions, reorganizations, wallet backup/recovery, and operational monitoring.
 - Run a public testnet with independent nodes and miners.
-- Test difficulty changes, reorgs, invalid blocks, wallet recovery, and backup/restore.
 - Obtain independent security and consensus review.
-- Publish binaries, checksums, release notes, and operator documentation.
+- Publish reproducible binaries, checksums, release notes, and operator documentation.
 
 ## Development approach
 

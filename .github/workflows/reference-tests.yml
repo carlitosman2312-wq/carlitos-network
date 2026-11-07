@@ -1,0 +1,27 @@
+name: Reference consensus tests
+
+on:
+  push:
+    branches: [main, "consensus/**"]
+  pull_request:
+    branches: [main]
+
+# Avoid running stale reference-test jobs repeatedly for the same PR/ref.
+concurrency:
+  group: carlitos-reference-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run reference tests
+        run: python -m unittest discover -s tests -v
