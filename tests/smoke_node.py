@@ -86,7 +86,9 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
         def rpc_ready():
             if process.poll() is not None:
                 raise RuntimeError(f"{name} exited early with code {process.returncode}")
-            return rpc(name, "getblockchaininfo", check=False, timeout=3)
+            # Treat non-JSON CLI error output as "not ready" rather than a successful probe.
+            response = rpc(name, "getblockchaininfo", check=False, timeout=3)
+            return isinstance(json.loads(response), dict) if response else False
 
         wait_for(rpc_ready, f"{name} RPC startup", timeout=45)
 
