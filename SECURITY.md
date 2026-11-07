@@ -1,20 +1,19 @@
 # Security Policy
 
-## Supported Versions
+## Project status and supported releases
 
-See our website for versions of Bitcoin Core that are currently supported with
-security updates: https://bitcoincore.org/en/lifecycle/#schedule
+Carlitos Network (CRLTS) is an experimental Bitcoin Core-derived project. No production mainnet release or public testnet deployment is currently supported. Do not use real funds or treat a successful build/test run as a security audit.
 
-## Reporting a Vulnerability
+Until a production release series is explicitly published, there are no supported production versions. The validated development branch and its CI status are documented in [TEST_STATUS.md](TEST_STATUS.md).
 
-To report security issues send an email to security@bitcoincore.org (not for support).
+## Reporting a vulnerability
 
-The following keys may be used to communicate sensitive information to developers:
+**Do not send Carlitos vulnerability reports to Bitcoin Core's security contacts.** Carlitos is an independent project; the upstream Bitcoin Core security email address and PGP keys are not Carlitos disclosure contacts.
 
-| Name | Fingerprint |
-|------|-------------|
-| Michael Ford | E777 299F C265 DD04 7930  70EB 944D 35F9 AC3D B76A |
-| Ava Chow | 1528 1230 0785 C964 44D3  334D 1756 5732 E08E 5E41 |
-| Niklas Gögge | 2CBB F208 E594 BF43 9B5F 276C 7465 CFFF 6793 242E |
+This repository does not currently document a dedicated encrypted security contact or a verified private disclosure channel. Do not post exploit details, private keys, wallet seeds, or a weaponized proof of concept in a public GitHub issue or pull request.
 
-You can import a key by running the following command with that individual’s fingerprint: `gpg --keyserver hkps://keys.openpgp.org --recv-keys "<fingerprint>"` Ensure that you put quotes around fingerprints containing spaces.
+Before accepting sensitive vulnerability reports, the maintainers must establish and verify a private channel, preferably by enabling GitHub Private Vulnerability Reporting for this repository or publishing a dedicated security email address and its verified encryption key. Until that channel is confirmed, use a public GitHub issue only to ask the maintainers to arrange a private disclosure route; include no vulnerability details.
+
+## Coordinated disclosure
+
+Once a private channel is available, reporters and maintainers should agree on a remediation and disclosure timeline. Avoid publishing details that could expose users or node operators before a fix and mitigation guidance are available.
