@@ -25,24 +25,30 @@ The full v32.1 source tree was fetched from the official upstream repository and
 
 ## Automated validation status (Ubuntu 24.04)
 
-The last fully validated consensus implementation is commit `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`:
-- Native build workflow #46 passed: https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325345
-- Python reference workflow #40 passed (13/13): https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325313
+The current draft PR head `1aff7ff030db0f45a044087fa53803849fde5198` passed both workflows:
+- Native build and consensus workflow #57: https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42334222080
+- Python reference workflow #51 (13/13): https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42334222101
+- Native node, CLI, wallet, and test binary build: passed.
+- Generated `carlitos.conf` ports and network sections: passed.
 - Targeted native `validation_tests`: 10 Boost cases passed.
-- Two-node `carlitosregtest` smoke: P2P connected, blocks and mempool transaction propagated, wallets/address generation worked, 100-block coinbase maturity verified, and a 1 CRLTS spend confirmed.
+- New `pow_tests` BIP94 period-start retarget regression: passed.
+- Two-node `carlitosregtest` smoke: P2P, block sync, mempool relay, wallets, maturity, and a confirmed 1 CRLTS spend passed.
+- The extended smoke test built a valid-PoW candidate header at height 2016 that passed median-time-past but violated BIP94; the node rejected it with `time-timewarp-attack`.
 - Full CTest: 374 discovered, 373 passed, 1 skipped (`script_assets_tests`), 0 failed.
 
-Follow-up commits in draft PR #2 add Carlitos testnet/regtest config-section recognition, generated `carlitos.conf`, CLI help/port coverage, and BIP94 timewarp/retarget hardening. Those follow-ups require a fresh native CI pass before being considered validated. The BIP94 changes do not alter genesis hashes, subsidy, halving, proof-of-work limit, or block reward schedule.
+The native workflow includes the generated configuration check, Python reference tests, targeted native tests, the two-node smoke, and the full CTest run. This validates the present native prototype on Ubuntu 24.04. It does not validate a deployed public testnet, real-world mining security, third-party wallet interoperability, or readiness for real funds.
 
-The connected Windows PC built all 601 native build steps but Windows Application Control blocked launching the rebuilt executables. This local policy was not bypassed; Ubuntu CI provides the runtime execution evidence above.
+The BIP94 changes do not alter genesis hashes, subsidy, halving, proof-of-work limit, or block reward schedule. They do change timestamp and retarget consensus behavior from genesis.
+
+The connected Windows PC built all 601 native build steps but Windows Application Control blocked launching the rebuilt executables. That local policy was not bypassed; Ubuntu CI provides the runtime evidence.
 
 ## Remaining engineering work before public use
 
-1. Keep the latest config/generator/BIP94 follow-up commits under native Linux CI, including the new BIP94 retarget regression case and full CTest suite.
-2. Obtain a trusted build environment where the node executable is permitted to run; test startup, RPC, wallet creation, block generation, coinbase maturity, sends, P2P, reorganizations, restart, and recovery.
-3. Mainnet BIP32 extended-key bytes are now distinct (043c524c / 043c5350) and their vectors were migrated, but those custom bytes are provisional and need SLIP-0132 registration. Design a compatible wallet derivation scheme, implement a BIP44-capable wallet path if desired, then request a SLIP-0044 coin type; verify imports cannot confuse Bitcoin and Carlitos keys.
-4. Deploy multiple independent `carlitostestnet` nodes, register DNS seed operators, and validate cross-operator mining, retargeting, reorgs, and wallet interoperability.
-5. Obtain independent consensus/security audits, especially of PoW attack economics and difficulty adjustment.
-6. Publish reproducible binaries, checksums, release notes, and node/wallet operator documentation only after the preceding gates pass.
+1. Deploy several independently operated Carlitos public-testnet nodes and seed operators; current peer discovery is manual via `-addnode`.
+2. Exercise sustained public-testnet mining, difficulty transitions, reorgs, peer discovery, wallet backup/recovery, restart, and recovery with independent operators.
+3. Agree on a canonical wallet derivation profile and BIP44 path before requesting a SLIP-0044 coin type. The custom BIP32 extended-key bytes (043c524c / 043c5350 mainnet) remain provisional and need SLIP-0132 review/registration; interoperability is not established.
+4. Provision DNS/fixed seed infrastructure, a faucet, block explorer, monitoring, and public operator documentation after seed operators and wallet standards are in place.
+5. Obtain independent consensus, cryptographic, and security review, including PoW attack economics and difficulty adjustment.
+6. Establish a verified private vulnerability-disclosure route and incident response, then publish reproducible binaries, checksums, and release instructions only after the preceding gates pass.
 
 This is an experimental development branch, not an operating or launched blockchain.

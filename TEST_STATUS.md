@@ -2,75 +2,83 @@
 
 Last verified: 2026-11-07 (GitHub Actions)  
 Source branch: `integration/bitcoin-core-v32.1`  
-Validated commit: `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`  
+Validated PR head: `1aff7ff030db0f45a044087fa53803849fde5198`  
 Upstream baseline: Bitcoin Core v32.1
 
 ## Current supported-platform validation
 
-The current PR head passed both GitHub Actions workflows on Ubuntu 24.04:
+Both workflows passed on the same PR head on Ubuntu 24.04:
 
-- Native build and consensus workflow: [run #46](https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325345)
-- Python reference workflow: [run #40](https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325313)
+- Native build and consensus workflow #57: https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42334222080
+- Python reference workflow #51: https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42334222101
 
 | Check | Result |
 |---|---|
 | Ubuntu 24.04 CMake configure | Passed |
 | Native node, CLI, wallet, and native test binary build | Passed |
+| Generated `carlitos.conf` verification | Passed; generated P2P/RPC ports and Carlitos network sections verified |
 | Python reference consensus suite | Passed, 13/13 |
-| Targeted native `validation_tests` | Passed; 10 Boost test cases, no errors |
-| Carlitos mainnet/testnet/regtest validation and genesis checks | Passed within native validation tests |
-| Default data root and network-specific data-directory isolation | Passed within native validation tests |
-| Two-node `carlitosregtest` P2P smoke test | Passed; node B connected to node A |
-| Block synchronization | Passed; node B followed node A through blocks 100–103 |
-| Mempool transaction relay | Passed; receiver node observed the transaction before mining |
-| Wallet creation and `rcrl1` address generation | Passed on both nodes |
-| Coinbase maturity | Passed; balance was 0 at height 100, 100 CRLTS at height 101, and 200 CRLTS at height 102 |
-| Confirmed wallet spend | Passed; 1.0 CRLTS spend confirmed at height 103 and credited to receiver wallet |
+| Targeted native `validation_tests` | Passed; 10 Boost test cases |
+| Carlitos chain parameter and genesis checks | Passed |
+| Default data root and network-specific data-directory isolation | Passed |
+| Native BIP94 retarget regression in `pow_tests` | Passed; confirms period-start difficulty is used on Carlitos testnet |
+| Two-node `carlitosregtest` P2P smoke | Passed; node B connected to node A |
+| Block synchronization and mempool relay | Passed; blocks and the spend transaction propagated |
+| Wallets and `rcrl1` address generation | Passed on both nodes |
+| Coinbase maturity | Passed; 0 CRLTS at height 100, 100 CRLTS at height 101, 200 CRLTS at height 102 |
+| Confirmed wallet spend | Passed; a 1 CRLTS spend confirmed at height 103 and credited to the receiver |
+| BIP94 timestamp rejection | Passed; smoke test prepared a valid-PoW header for height 2016 whose timestamp passed median-time-past but violated the 600-second BIP94 timewarp rule; node rejected it with `time-timewarp-attack` |
 | Full CTest suite | 374 discovered; 373 passed, 1 skipped, 0 failed |
-| `descriptor_tests` | Passed |
-| `bip324_tests` | Passed |
-| `script_assets_tests` | Skipped by CTest (the single skipped test) |
 
-The native CI log explicitly reports:
+The native workflow log explicitly reports:
 
-`PASS: two Carlitos regtest nodes connected; blocks and mempool transaction propagated; wallets, rcrl addresses, 100-block maturity, mining, and confirmed spend verified`
+`PASS: two Carlitos regtest nodes connected; blocks and mempool transaction propagated; wallets, rcrl addresses, 100-block maturity, mining, confirmed spend, and BIP94 timestamp rejection verified`
 
-The CTest log ends with `100% tests passed, 0 tests failed out of 374` and explicitly lists test 311, `script_assets_tests`, as skipped. The accurate summary is therefore 373 passed, 1 skipped, 0 failed—not 374 executed tests passing.
+CTest reports `100% tests passed, 0 tests failed out of 374`; test 311, `script_assets_tests`, was skipped. The accurate result is 373 passed, 1 skipped, 0 failed—not 374 executed tests passing.
+
+## What this validation establishes
+
+The current code can be configured, compiled, and run on Ubuntu 24.04. The generated configuration example, reference consensus calculations, native chain validation, BIP94 retarget behavior, local two-node P2P, wallet/maturity/spend path, and BIP94 timestamp rejection all passed their automated checks.
+
+The BIP94 changes alter timestamp/retarget consensus behavior from genesis. They do not alter the Carlitos genesis hashes, initial subsidy, halving interval, proof-of-work limit, or block reward schedule.
+
+These are prototype and regtest results. They do not establish public-testnet liveness, real-world mining security, wallet interoperability, resistance to attacks, or readiness for real funds.
 
 ## Windows host note
 
-The connected Windows PC previously completed a native 601/601-step build with GCC 16.2.0, CMake 4.4.5, and Ninja 1.13.2. However, Windows Application Control blocked launching the newly rebuilt executables on that host. This local policy was not bypassed. Ubuntu CI supplies the current supported-platform build and runtime execution evidence.
+The connected Windows PC previously completed a native 601/601-step build with GCC 16.2.0, CMake 4.4.5, and Ninja 1.13.2. Windows Application Control blocked launching the rebuilt executables on that host. The local policy was not bypassed. The Ubuntu Actions workflow supplies supported-platform runtime evidence.
 
-## Earlier CTest failures and adaptations
+## Test adaptations
 
-The initial Windows full-suite run was a baseline, not the final state. The initial failures prompted chain-aware test updates; the current post-fix Linux run passes the full supported CTest suite apart from the explicitly skipped script-assets test.
-
-The adaptations include:
-- Re-encoding mainnet Base58/WIF and Bech32 vectors for Carlitos address prefixes while preserving key/hash payloads.
-- Re-encoding Taproot address vectors for the Carlitos Bech32 HRP.
-- Re-encoding WIF fixtures in key, bloom, and descriptor tests while preserving private-key bytes.
-- Updating RPC and utility fixtures to Carlitos P2PKH/P2SH/WIF prefixes.
-- Running inherited fixed pre-mined block fixtures against isolated Bitcoin regtest parameters where the Carlitos coinbase subsidy changes the transaction ID and Merkle root.
-- Updating invalid-transaction fixtures to test the Carlitos 100,000,000 CRLTS money limit.
-- Making peer-port assertions use the selected chain's configured port.
-- Running historical proof-of-work retarget vectors against an isolated Bitcoin testnet parameter copy.
-- Avoiding unsigned underflow in the zero-minimum-chainwork fixture.
-- Adding and validating distinct Carlitos mainnet, public-testnet, and local-regtest extended-key serialization prefixes.
-- Testing that Carlitos uses its own default data root and separate data-directory children for its public-testnet and regtest chains.
+The inherited Bitcoin tests were adapted for Carlitos network identity and consensus:
+- Mainnet Base58/WIF and Bech32 vectors use Carlitos prefixes/HRP while preserving key/hash payloads.
+- Taproot address vectors and descriptor fixtures use Carlitos Bech32 HRP and extended-key serialization versions.
+- Wallet, key, bloom, descriptor, RPC, and utility fixtures use the matching Carlitos address and WIF prefixes.
+- Inherited fixed pre-mined fixtures run against isolated Bitcoin regtest parameters where Carlitos subsidy changes coinbase transaction IDs and Merkle roots.
+- Invalid-transaction fixtures exercise the Carlitos 100,000,000 CRLTS money limit.
+- Peer-port checks use the selected chain's configured P2P port.
+- Historical proof-of-work vectors use isolated Bitcoin testnet parameters.
+- Zero-minimum-chainwork fixtures avoid unsigned underflow.
+- Carlitos mainnet, public-testnet, and regtest extended-key serialization prefixes are tested.
+- Carlitos mainnet data root and public-testnet/regtest data-directory isolation are tested.
+- A native retarget regression tests BIP94's period-start anchor on public testnet.
+- The two-node smoke exercises a height-2016 BIP94 timewarp rejection with a proof-of-work-valid header.
 
 ## Remaining launch and security blockers
 
-Green CI means the current native prototype builds and passes its present automated checks. It does **not** mean the network is ready for real funds or public launch.
+Green CI does **not** mean the network is ready for public launch or real funds. Outstanding work includes:
+- No Carlitos mainnet or public-testnet nodes are deployed. There are no DNS/fixed seeds or independent seed operators; testnet peers must currently be connected manually with `-addnode`.
+- No independent miner/operator set, block explorer, monitoring, public faucet, or sustained public-testnet history exists.
+- A canonical wallet derivation profile and BIP44 path have not been selected. No SLIP-0044 coin type has been assigned; the wallet interoperability plan must be decided before requesting one.
+- The custom BIP32 extended-key versions are provisional and not registered in SLIP-0132. Do not promise third-party wallet compatibility.
+- SECURITY.md explains the fork-specific disclosure policy, but a verified private vulnerability-reporting channel has not been established.
+- Independent consensus, cryptographic, PoW-economics, and security review remains outstanding.
+- The proposed `0x1e00ffff` PoW target is 256 times easier than Bitcoin's historic difficulty-1 target. It is a provisional parameter, not a security guarantee.
+- Public-testnet peer discovery, sustained multi-operator mining, difficulty transitions, reorganizations, wallet backup/recovery, and restart/recovery still need real network exercise.
+- Reproducible release binaries, checksums, release notes, incident response, and launch operations are not yet complete.
 
-Outstanding work includes:
-- Deploying a public Carlitos testnet with independent nodes and seed operators; current testnet bootstrap has no DNS/fixed seeds and requires manual `-addnode`.
-- Assigning and documenting a canonical wallet derivation path and BIP44 coin type.
-- Reviewing the provisional custom BIP32 extended-key version bytes with wallet implementers and the relevant registry; interoperability is not established.
-- Testing public-testnet peer discovery, sustained multi-operator mining, difficulty transitions, reorganizations, backups, and wallet recovery under realistic conditions. Local two-node regtest P2P and transaction relay now pass.
-- Obtaining independent consensus, cryptographic, and security review.
-- Reviewing the proposed proof-of-work limit. The current `0x1e00ffff` target is 256 times easier than Bitcoin's historic difficulty-1 target and is not a security guarantee.
-- Preparing reproducible release binaries, checksums, operator instructions, monitoring, incident response, and a launch plan only after the above items are addressed.
+The manual operator guide is in `TESTNET_OPERATIONS.md`; it is for coordinated private testing only, not evidence of a deployed public testnet.
 
 ## Conclusion
 
-The native build, Python reference tests, targeted native validation, two-node local regtest P2P/wallet/mining/maturity/spend smoke test, and full CTest suite are green on Ubuntu 24.04 for the validated commit. The project remains an experimental Bitcoin Core-derived prototype. No public testnet or mainnet is deployed; do not use real funds or describe CRLTS as launched.
+Native build, generated config, Python reference tests, targeted native consensus checks, BIP94 retarget and timestamp-rejection checks, two-node local regtest P2P/wallet/mining/maturity/spend, and full CTest all passed on PR head `1aff7ff030db0f45a044087fa53803849fde5198`. The project remains an experimental Bitcoin Core-derived prototype. No public testnet or mainnet is deployed. Do not use real funds or describe CRLTS as launched.

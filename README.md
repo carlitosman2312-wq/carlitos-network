@@ -14,14 +14,14 @@ The objective is a native coin with its own blockchain, nodes, mining, wallets, 
 - Separate local `-chain=carlitosregtest` for instant mining (P2P 38444 / RPC 38446, HRP `rcrl`); it is not a public testnet.
 - BIP94 timewarp protection is enforced from genesis on all Carlitos networks; on public testnet, retargets anchor to the first block of each period to prevent min-difficulty resets.
 - Extended BIP32 serialization prefixes are isolated for mainnet, testnet, and regtest; these provisional custom values still need external wallet review and registry work.
-- Ubuntu 24.04 CI successfully builds the native node, CLI, wallet, and test binary; Python and targeted native consensus tests pass; a two-node regtest smoke test verifies P2P connection, block and mempool-transaction propagation, wallet maturity, mining, and confirmed spend.
+- Ubuntu 24.04 native workflow #57 passes on PR head `1aff7ff030db0f45a044087fa53803849fde5198`: native build, generated config, Python reference suite, targeted native consensus, BIP94 retarget test, two-node regtest smoke including BIP94 timestamp rejection, and full CTest.
 - C++ node, CLI, wallet, and native test binary build successfully with GCC 16.2 / CMake 4.4.5 on the connected Windows PC.
-- Python reference tests: 13/13 pass.
-- Targeted native `validation_tests`: passed (10 Boost test cases), including Carlitos consensus and data-directory isolation checks.
-- Full post-fix CTest on Linux: 373 passed, 1 skipped (`script_assets_tests`), 0 failed (374 tests discovered). Both `descriptor_tests` and `bip324_tests` pass. See TEST_STATUS.md for the exact workflow run and limits.
+- Python reference workflow #51 on the same head: 13/13 tests pass.
+- Targeted native `validation_tests`: 10 Boost test cases pass, including Carlitos consensus and data-directory isolation.
+- Full CTest on Linux: 374 discovered, 373 passed, 1 skipped (`script_assets_tests`), 0 failed. See TEST_STATUS.md for workflow details and limitations.
 - The rebuilt Windows executables remain blocked by Windows Application Control on that PC; no attempt was made to bypass the policy. The Linux CI runtime smoke test independently verified the local regtest daemon, RPC, wallet, mining, coinbase maturity, and confirmed spend.
-- The last fully validated consensus implementation is commit `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf` (native run #46 and reference run #40). Later configuration, generator, and BIP94 hardening follow-ups are in draft PR #2 and require fresh CI before they can be called validated.
+- Current validated PR head: `1aff7ff030db0f45a044087fa53803849fde5198`; native workflow #57 and reference workflow #51 passed. Draft PR #2 remains open for review.
 
 See PROTOCOL.md, CONSENSUS_REFERENCE.md, UPSTREAM.md, and TEST_STATUS.md.
 
-Not ready for real funds: the proposed mainnet proof-of-work target is provisional and 256 times easier than Bitcoin's historic difficulty-1 target. There are no public seed nodes, public testnet, audited mainnet binaries, or launched chain.
+Not ready for real funds: the proposed mainnet proof-of-work target is provisional and 256 times easier than Bitcoin's historic difficulty-1 target. There are no deployed public seed nodes, independent public-testnet operators, audited mainnet binaries, or launched chain.

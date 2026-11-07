@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "Last fully validated consensus implementation commit 95d6ff2f72c821c12f0f7a5e5c316828f1db60cf passed Ubuntu 24.04 native and reference CI; later config/generator/BIP94 hardening commits require fresh CI. Public launch and independent security review remain pending",
+  "consensus_status": "Validated PR head 1aff7ff030db0f45a044087fa53803849fde5198 passed Ubuntu 24.04 native workflow #57 and Python reference workflow #51: native build, generated config, 13/13 reference tests, targeted native validation, BIP94 retarget regression, two-node regtest smoke including height-2016 BIP94 timestamp rejection, and full CTest (373 passed, 1 skipped, 0 failed of 374 discovered). Public launch and independent security review remain pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",
@@ -74,15 +74,16 @@
   },
   "notes": [
     "The v32.1 source tree is imported and Carlitos mainnet, public-testnet, and local-regtest parameters are implemented.",
-    "GitHub Actions run #46 on commit 95d6ff2 passed the native Ubuntu build, targeted validation tests, two-node local regtest P2P/wallet/mining/maturity/confirmed-spend smoke test, and full CTest (373 passed, 1 skipped, 0 failed out of 374 discovered).",
-    "The Python reference consensus suite passed 13/13 in GitHub Actions run #40 on the same commit; descriptor_tests, bip324_tests, and Carlitos data-directory isolation validation passed.",
     "The local two-node smoke test verifies P2P connection, block synchronization, mempool transaction relay, wallet operation, coinbase maturity, mining, and a confirmed CRLTS spend. It is a regtest test, not a public testnet.",
     "The 0x1e00ffff proof-of-work target is 256 times easier than Bitcoin's historic difficulty-1 target and remains provisional; it is not a security guarantee.",
     "The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks.",
     "The public testnet has no DNS or fixed seeds and is not deployed; operators must manually connect nodes using -addnode until independent seed operators are running.",
     "BIP94 timewarp protection is enabled from genesis on all Carlitos chains; public-testnet retargets anchor to the period-start difficulty even if the final block used minimum difficulty.",
     "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry.",
-    "Do not use this branch for real funds or launch a public network before public-testnet exercise and independent consensus/security review."
+    "Do not use this branch for real funds or launch a public network before public-testnet exercise and independent consensus/security review.",
+    "Current PR head 1aff7ff030db0f45a044087fa53803849fde5198 passed native workflow #57 and reference workflow #51 on Ubuntu 24.04; CTest 374 discovered, 373 passed, 1 skipped, 0 failed.",
+    "Native workflow #57 verified BIP94 period-start retarget behavior and rejected a proof-of-work-valid height-2016 header with a timewarp violation using reject reason time-timewarp-attack.",
+    "TESTNET_OPERATIONS.md documents manual addnode-based private operator testing; the public testnet remains undeployed with no DNS/fixed seeds."
   ],
   "development_network": {
     "chain_argument": "-chain=carlitosregtest",
