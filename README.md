@@ -13,13 +13,13 @@ The objective is a native coin with its own blockchain, nodes, mining, wallets, 
 - Separate `-chain=carlitostestnet` public-testnet parameter set (P2P 48444 / RPC 48446, 10-minute retargeting, manual `-addnode` bootstrap; not deployed yet).
 - Separate local `-chain=carlitosregtest` for instant mining (P2P 38444 / RPC 38446, HRP `rcrl`); it is not a public testnet.
 - Extended BIP32 serialization prefixes are isolated for mainnet, testnet, and regtest; these provisional custom values still need external wallet review and registry work.
-- Ubuntu CI now builds the native node, runs consensus tests and a node/wallet/coinbase-maturity/transaction smoke test, then runs the full CTest suite. Results are pending.
+- Ubuntu 24.04 CI successfully builds the native node, CLI, wallet, and test binary; Python and targeted native consensus tests pass; a local regtest node/wallet/mining/maturity/spend smoke test passes.
 - C++ node, CLI, wallet, and native test binary build successfully with GCC 16.2 / CMake 4.4.5 on the connected Windows PC.
 - Python reference tests: 13/13 pass.
 - Bitcoin Core native validation_tests suite: 8/8 pass, including Carlitos mainnet genesis, Carlitos development genesis, and total issuance.
-- Baseline full upstream CTest (before Carlitos-specific fixture updates): 95% passed; 14 tests failed and one was skipped. Chain-specific address/WIF, money, RPC, miner, PoW, and chainstate test fixtures have since been adapted and the updated native test binary compiles. A complete post-fix rerun is pending Linux CI; cryptographic BIP324 failures still require supported-platform reproduction. See TEST_STATUS.md.
-- The daemon executable could not be launched on the Windows PC because Windows Application Control blocked it. Runtime mining/RPC tests therefore remain pending.
-- The integration branch has been pushed to GitHub. Draft PR #2 is open for review and CI validation; it has not been merged into main.
+- Full post-fix CTest on Linux: 373 passed, 1 skipped (`script_assets_tests`), 0 failed (374 tests discovered). Both `descriptor_tests` and `bip324_tests` pass. See TEST_STATUS.md for the exact workflow run and limits.
+- The rebuilt Windows executables remain blocked by Windows Application Control on that PC; no attempt was made to bypass the policy. The Linux CI runtime smoke test independently verified the local regtest daemon, RPC, wallet, mining, coinbase maturity, and confirmed spend.
+- GitHub Actions run #40 (native) and run #34 (Python reference) pass on commit `cea5d19206e3b98475d077e8a7361b3c96d0dd1a`. Draft PR #2 remains open and unmerged.
 
 See PROTOCOL.md, CONSENSUS_REFERENCE.md, UPSTREAM.md, and TEST_STATUS.md.
 
