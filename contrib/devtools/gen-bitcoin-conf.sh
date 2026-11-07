@@ -50,8 +50,15 @@ EOF
 # adding newlines is a bit funky to ensure portability for BSD
 # see here for more details: https://stackoverflow.com/a/24575385
 # Some builds return a non-zero status after printing the requested help text.
-# Preserve the help output so the generator does not fail solely on that status.
-( "${BITCOIND}" --help || true ) \
+# Accept that status only when the expected help content was actually emitted.
+HELP_STATUS=0
+HELP_OUTPUT=$("${BITCOIND}" --help 2>&1) || HELP_STATUS=$?
+if [[ "${HELP_OUTPUT}" != *"Options:"* ]]; then
+  printf '%s\\n' "${HELP_OUTPUT}" >&2
+  echo "Unable to read help output from ${BITCOIND}." >&2
+  exit "${HELP_STATUS:-1}"
+fi
+printf '%s\\n' "${HELP_OUTPUT}" \
     | sed '1,/Options:/d' \
     | sed -E '/^[[:space:]]{2}-help/,/^[[:space:]]*$/d' \
     | sed -E 's/^[[:space:]]{2}\-/#/' \
