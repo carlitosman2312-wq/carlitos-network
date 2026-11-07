@@ -73,14 +73,14 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 | P2PKH / P2SH / WIF prefixes | 28 / 50 / 156 |
 | Bech32 HRP | crl |
 | BIP32 extended public/private version bytes | 043c524c / 043c5350 (provisional, custom) |
-| BIP44 coin type / standard derivation path | Not assigned or registered |
+| BIP44 coin type / standard derivation path | CRLTS-specific value not assigned; current wallet still uses Bitcoin coin type `0'` on mainnet and `1'` on test chains |
 | DNS seeds / fixed seeds | None configured |
 
 The genesis block was computed with zero coinbase value and SHA-256d proof of work. Its hash and parameters pass the Carlitos native unit test. The 0x1e00ffff target is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. This is a provisional bootstrap parameter, not evidence of resistance to a 51% attack. Public launch requires independent security review and meaningful, distributed hash power.
 
 The inherited testnet, testnet4, signet, and regtest modes remain Bitcoin networks, not Carlitos networks. Carlitos now has two separate development networks: `-chain=carlitostestnet` is a public-testnet parameter set (P2P 48444, RPC 48446, HRP `tcrl`, separate genesis, normal 10-minute retargeting with minimum-difficulty blocks allowed and BIP94 period-start difficulty anchoring); `-chain=carlitosregtest` remains local instant-mining (P2P 38444, RPC 38446, HRP `rcrl`). The public-testnet parameters have no DNS/fixed seeds yet, so nodes must be connected manually with `-addnode` until independent seed operators are provisioned. `TESTNET_OPERATIONS.md` documents safe private operator testing; no public testnet nodes are deployed or running yet.
 
-Mainnet BIP32 extended-key version bytes are now custom (043c524c public, 043c5350 private), preventing Carlitos mainnet exports from using Bitcoin's standard xpub/xprv version bytes. These custom values are provisional and not registered in SLIP-0132; obtain registry approval before promising compatibility with third-party wallets. No BIP44 coin type or canonical wallet derivation path is assigned yet. SLIP-0044 only adds a coin type when a wallet implementing BIP44 for the coin exists, so a compliant wallet/path plan must precede that registration. Independent DNS seed operators and a public testnet also remain outstanding.
+Mainnet BIP32 extended-key version bytes are custom (043c524c public, 043c5350 private), but remain provisional and are not registered in SLIP-0132. The default wallet descriptor generator still uses Bitcoin's derivation purposes and coin types: `m/44'/0'/0'/0/*`, `m/49'/0'/0'/0/*`, `m/84'/0'/0'/0/*`, and `m/86'/0'/0'/0/*` for mainnet address types; test chains use coin type `1'`. Thus the CRLTS wallet key space is not yet isolated from Bitcoin's when the same seed is reused. A CRLTS-specific BIP44 path/coin type must be selected and implemented before real funds are used. BIP44's guidance says a coin type is requested after a wallet implementing the standard exists; SLIP-0044 is the registry. Independent DNS seed operators and a public testnet also remain outstanding.
 
 ## Security and launch criteria
 

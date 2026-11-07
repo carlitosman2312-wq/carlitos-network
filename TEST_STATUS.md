@@ -69,7 +69,7 @@ The inherited Bitcoin tests were adapted for Carlitos network identity and conse
 Green CI does **not** mean the network is ready for public launch or real funds. Outstanding work includes:
 - No Carlitos mainnet or public-testnet nodes are deployed. There are no DNS/fixed seeds or independent seed operators; testnet peers must currently be connected manually with `-addnode`.
 - No independent miner/operator set, block explorer, monitoring, public faucet, or sustained public-testnet history exists.
-- A canonical wallet derivation profile and BIP44 path have not been selected. No SLIP-0044 coin type has been assigned; the wallet interoperability plan must be decided before requesting one.
+- The current descriptor-wallet generator still uses Bitcoin BIP44 coin types: `0'` on mainnet and `1'` on test chains, with purposes `44'`, `49'`, `84'`, and `86'`. Carlitos therefore does not yet have an isolated derivation namespace; reusing a seed across Bitcoin and Carlitos can derive the same child keys. A CRLTS-specific path and SLIP-0044 coin type must be selected and implemented before real-fund wallets are used. BIP44's published registration guidance requires an implementing wallet.
 - The custom BIP32 extended-key versions are provisional and not registered in SLIP-0132. Do not promise third-party wallet compatibility.
 - SECURITY.md explains the fork-specific disclosure policy, but a verified private vulnerability-reporting channel has not been established.
 - Independent consensus, cryptographic, PoW-economics, and security review remains outstanding.

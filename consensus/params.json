@@ -79,11 +79,11 @@
     "The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks.",
     "The public testnet has no DNS or fixed seeds and is not deployed; operators must manually connect nodes using -addnode until independent seed operators are running.",
     "BIP94 timewarp protection is enabled from genesis on all Carlitos chains; public-testnet retargets anchor to the period-start difficulty even if the final block used minimum difficulty.",
-    "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry.",
     "Do not use this branch for real funds or launch a public network before public-testnet exercise and independent consensus/security review.",
     "Current PR head 1aff7ff030db0f45a044087fa53803849fde5198 passed native workflow #57 and reference workflow #51 on Ubuntu 24.04; CTest 374 discovered, 373 passed, 1 skipped, 0 failed.",
     "Native workflow #57 verified BIP94 period-start retarget behavior and rejected a proof-of-work-valid height-2016 header with a timewarp violation using reject reason time-timewarp-attack.",
-    "TESTNET_OPERATIONS.md documents manual addnode-based private operator testing; the public testnet remains undeployed with no DNS/fixed seeds."
+    "TESTNET_OPERATIONS.md documents manual addnode-based private operator testing; the public testnet remains undeployed with no DNS/fixed seeds.",
+    "Wallet descriptor generation still inherits Bitcoin BIP44 coin type 0' on mainnet and 1' on test chains with purposes 44'/49'/84'/86'; a CRLTS-specific derivation namespace must be implemented before real-fund wallets are used."
   ],
   "development_network": {
     "chain_argument": "-chain=carlitosregtest",

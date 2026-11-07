@@ -46,7 +46,7 @@ The connected Windows PC built all 601 native build steps but Windows Applicatio
 
 1. Deploy several independently operated Carlitos public-testnet nodes and seed operators; current peer discovery is manual via `-addnode`.
 2. Exercise sustained public-testnet mining, difficulty transitions, reorgs, peer discovery, wallet backup/recovery, restart, and recovery with independent operators.
-3. Agree on a canonical wallet derivation profile and BIP44 path before requesting a SLIP-0044 coin type. The custom BIP32 extended-key bytes (043c524c / 043c5350 mainnet) remain provisional and need SLIP-0132 review/registration; interoperability is not established.
+3. Replace the inherited Bitcoin descriptor derivation paths before real-fund wallets: current mainnet paths use coin type `0'`, test-chain paths use `1'`, and purposes `44'`, `49'`, `84'`, and `86'`. Agree on a CRLTS-specific BIP44 path, add chain-aware wallet tests, then request a SLIP-0044 coin type once the wallet implementing BIP44 is ready. The custom BIP32 bytes (043c524c / 043c5350 mainnet) remain provisional and need SLIP-0132 review/registration.
 4. Provision DNS/fixed seed infrastructure, a faucet, block explorer, monitoring, and public operator documentation after seed operators and wallet standards are in place.
 5. Obtain independent consensus, cryptographic, and security review, including PoW attack economics and difficulty adjustment.
 6. Establish a verified private vulnerability-disclosure route and incident response, then publish reproducible binaries, checksums, and release instructions only after the preceding gates pass.

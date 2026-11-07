@@ -59,7 +59,7 @@ For disposable testnet funds only:
 ./build/bin/bitcoin-cli -chain=carlitostestnet -rpcwallet=testnet-operator getnewaddress
 ```
 
-Testnet addresses should use the `tcrl` HRP. Wallet derivation paths and extended-key prefixes are still provisional and are not registered for third-party wallet interoperability. Do not use a wallet created for this test as a production CRLTS wallet, and do not reuse its seed elsewhere.
+Testnet addresses should use the `tcrl` HRP. The current wallet descriptor generator still uses Bitcoin's BIP44 coin type `1'` on test chains and the Bitcoin purposes `44'`, `49'`, `84'`, and `86'`; Carlitos-specific derivation is not implemented. Extended-key prefixes are provisional and are not registered for third-party wallet interoperability. Use only disposable seeds and test coins. Do not reuse these seeds on Bitcoin or other networks.
 
 ## Before calling it a public testnet
 
