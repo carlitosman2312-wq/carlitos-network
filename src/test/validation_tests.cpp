@@ -82,11 +82,14 @@ BOOST_AUTO_TEST_CASE(carlitos_chain_data_directories_are_isolated)
     const auto testnet = CreateBaseChainParams(ChainType::CARLITOS_TESTNET);
     const auto regtest = CreateBaseChainParams(ChainType::CARLITOS_REGTEST);
 
-    // Empty data-dir suffix means the platform's Bitcoin Core default directory.
-    // Carlitos mainnet must use its own subdirectory to avoid opening Bitcoin data.
-    BOOST_CHECK_EQUAL(mainnet->DataDir(), "carlitos");
+    // GetDefaultDataDir() is namespaced to Carlitos by common/args.cpp.
+    // Mainnet uses that root directly; the development chains use isolated child directories.
+    BOOST_CHECK(mainnet->DataDir().empty());
     BOOST_CHECK_EQUAL(testnet->DataDir(), "carlitostestnet");
     BOOST_CHECK_EQUAL(regtest->DataDir(), "carlitosregtest");
+    BOOST_CHECK_EQUAL(mainnet->RPCPort(), 28446);
+    BOOST_CHECK_EQUAL(testnet->RPCPort(), 48446);
+    BOOST_CHECK_EQUAL(regtest->RPCPort(), 38446);
 }
 
 BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
