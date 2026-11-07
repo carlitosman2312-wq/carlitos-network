@@ -45,6 +45,21 @@ jobs:
       - name: Build node, CLI, wallet, and native test binary
         run: cmake --build build --parallel 2
 
+      - name: Verify generated Carlitos configuration example
+        run: |
+          EXAMPLE_CONF_FILE="$RUNNER_TEMP/carlitos.conf" \
+          SHARE_EXAMPLES_DIR="$RUNNER_TEMP" \
+          BITCOIND="$PWD/build/bin/bitcoind" \
+            contrib/devtools/gen-bitcoin-conf.sh
+          grep -Fq 'default: 28444' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq 'carlitostestnet: 48444' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq 'carlitosregtest: 38444' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq 'default: 28446' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq 'carlitostestnet: 48446' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq 'carlitosregtest: 38446' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq '[carlitostestnet]' "$RUNNER_TEMP/carlitos.conf"
+          grep -Fq '[carlitosregtest]' "$RUNNER_TEMP/carlitos.conf"
+
       - name: Run Python reference consensus tests
         run: python3 -m unittest discover -s tests -v
 
