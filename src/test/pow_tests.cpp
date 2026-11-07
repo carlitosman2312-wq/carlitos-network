@@ -44,7 +44,8 @@ BOOST_AUTO_TEST_CASE(carlitos_testnet_bip94_retarget_anchor)
     const unsigned int last_block_nbits = CalculateNextWorkRequired(
         &blocks.back(), blocks[interval].GetBlockTime(), legacy_consensus);
 
-    BOOST_CHECK_NE(anchored_nbits, last_block_nbits);
+    BOOST_CHECK_EQUAL(anchored_nbits, 0x1d00ffdeU);
+    BOOST_CHECK_EQUAL(last_block_nbits, 0x1e00ffdeU);
 }
 
 /* Test calculation of next difficulty target with no constraints applying */

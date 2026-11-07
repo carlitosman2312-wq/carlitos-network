@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Two-node Carlitos regtest P2P, wallet, mining, maturity, and spend smoke test."""
+import hashlib
 import json
+import struct
 import subprocess
 import tempfile
 import time
@@ -21,7 +23,7 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
     nodes = {}
     log_handles = {}
 
-    def rpc(name, *args, check=True, wallet=None, timeout=45):
+    def rpc(name, *args, check=True, wallet=None, timeout=45, return_process=False):
         node = nodes[name]
         command = [
             str(CLI),
@@ -38,7 +40,16 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
             raise RuntimeError(
                 f"bitcoin-cli {name} {' '.join(map(str, args))} failed: {result.stderr.strip()}"
             )
-        return result.stdout.strip()
+        return result if return_process else result.stdout.strip()
+
+    def compact_target(bits):
+        size = bits >> 24
+        word = bits & 0x007FFFFF
+        if bits & 0x00800000:
+            raise ValueError(f"Negative compact target: {bits:08x}")
+        if size <= 3:
+            return word >> (8 * (3 - size))
+        return word << (8 * (size - 3))
 
     def wait_for(predicate, description, timeout=60):
         deadline = time.monotonic() + timeout
@@ -171,9 +182,76 @@ with tempfile.TemporaryDirectory(prefix="carlitos-smoke-") as tmp:
         assert receiver_balance == Decimal("1.0"), (
             f"expected receiver wallet balance 1.0 CRLTS, got {receiver_balance}"
         )
+        # Exercise the BIP94 timestamp rule at the first block of difficulty period 2.
+        # Stop the receiver so it does not need to download the extra boundary-test blocks.
+        rpc("node-b", "stop", check=False, timeout=5)
+        nodes["node-b"]["process"].wait(timeout=20)
+
+        current_height = int(rpc("node-a", "getblockcount"))
+        if current_height > 2015:
+            raise AssertionError(f"Expected pre-boundary height <= 2015, got {current_height}")
+        blocks_to_boundary = 2015 - current_height
+        if blocks_to_boundary:
+            rpc(
+                "node-a", "generatetoaddress", str(blocks_to_boundary), mining_address,
+                timeout=180,
+            )
+        assert int(rpc("node-a", "getblockcount")) == 2015
+
+        previous_hash = rpc("node-a", "getbestblockhash")
+        previous_header = json.loads(rpc("node-a", "getblockheader", previous_hash))
+        high_time = int(previous_header["time"]) + 3600
+        rpc("node-a", "setmocktime", str(high_time))
+        rpc("node-a", "generatetoaddress", "1", mining_address)
+        boundary_previous_hash = rpc("node-a", "getbestblockhash")
+        boundary_previous = json.loads(
+            rpc("node-a", "getblockheader", boundary_previous_hash)
+        )
+        assert boundary_previous["height"] == 2015
+
+        # This timestamp is valid under median-time-past, but more than 600 seconds
+        # behind the previous block. BIP94 must reject it at height 2016.
+        candidate_time = int(boundary_previous["mediantime"]) + 1
+        assert candidate_time > int(boundary_previous["mediantime"])
+        assert (
+            int(boundary_previous["time"]) - candidate_time > 600
+        ), "BIP94 test setup did not create a 600-second timewarp"
+        rpc("node-a", "setmocktime", "0")
+
+        bits = int(boundary_previous["bits"], 16)
+        version = int(boundary_previous["version"]) & 0xFFFFFFFF
+        header_prefix = (
+            struct.pack("<I", version)
+            + bytes.fromhex(boundary_previous_hash)[::-1]
+            + bytes.fromhex(boundary_previous["merkleroot"])[::-1]
+            + struct.pack("<II", candidate_time, bits)
+        )
+        target = compact_target(bits)
+        candidate_header = None
+        for nonce in range(100_000):
+            raw_header = header_prefix + struct.pack("<I", nonce)
+            digest = hashlib.sha256(hashlib.sha256(raw_header).digest()).digest()
+            if int.from_bytes(digest, "little") <= target:
+                candidate_header = raw_header
+                break
+        assert candidate_header is not None, "Could not find a regtest-valid header nonce"
+
+        rejection = rpc(
+            "node-a", "submitheader", candidate_header.hex(),
+            check=False, return_process=True,
+        )
+        rejection_text = (rejection.stdout + "\n" + rejection.stderr).lower()
+        assert rejection.returncode != 0, (
+            "BIP94 accepted a block at the period boundary with a timestamp "
+            "more than 600 seconds behind its predecessor"
+        )
+        assert "time-timewarp-attack" in rejection_text, rejection_text
+        assert int(rpc("node-a", "getblockcount")) == 2015
+
         print(
             "PASS: two Carlitos regtest nodes connected; blocks and mempool transaction propagated; "
-            "wallets, rcrl addresses, 100-block maturity, mining, and confirmed spend verified"
+            "wallets, rcrl addresses, 100-block maturity, mining, confirmed spend, and BIP94 "
+            "timestamp rejection verified"
         )
     except Exception:
         for handle in log_handles.values():
