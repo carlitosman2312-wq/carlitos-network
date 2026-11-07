@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "Ubuntu 24.04 CI passed on commit cea5d19206e3b98475d077e8a7361b3c96d0dd1a: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native consensus tests; local carlitosregtest node-wallet-mining-maturity-spend smoke; full CTest 373 passed, 1 skipped, 0 failed of 374 discovered; public launch and independent security review remain pending",
+  "consensus_status": "Ubuntu 24.04 CI passed on commit 95d6ff2f72c821c12f0f7a5e5c316828f1db60cf: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native validation_tests 10 Boost cases; default data-root and network directory isolation; two-node carlitosregtest P2P/block/mempool/wallet/mining/maturity/spend smoke; full CTest 373 passed, 1 skipped, 0 failed of 374 discovered; public launch and independent security review remain pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",
@@ -69,13 +69,15 @@
     }
   },
   "notes": [
-    "The v32.1 source tree is imported and the mainnet parameters and subsidy rule are patched in C++.",
+    "The v32.1 source tree is imported and Carlitos mainnet, public-testnet, and local-regtest parameters are implemented.",
+    "GitHub Actions run #46 on commit 95d6ff2 passed the native Ubuntu build, targeted validation tests, two-node local regtest P2P/wallet/mining/maturity/confirmed-spend smoke test, and full CTest (373 passed, 1 skipped, 0 failed out of 374 discovered).",
+    "The Python reference consensus suite passed 13/13 in GitHub Actions run #40 on the same commit; descriptor_tests, bip324_tests, and Carlitos data-directory isolation validation passed.",
+    "The local two-node smoke test verifies P2P connection, block synchronization, mempool transaction relay, wallet operation, coinbase maturity, mining, and a confirmed CRLTS spend. It is a regtest test, not a public testnet.",
     "The 0x1e00ffff proof-of-work target is 256 times easier than Bitcoin's historic difficulty-1 target and remains provisional; it is not a security guarantee.",
     "The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks.",
-    "Do not use this branch for real funds or launch a public network before native tests and independent audits.",
-    "A separate local carlitosregtest and distinct carlitostestnet chain type are configured; inherited Bitcoin regtest/testnet/signet are not Carlitos networks.",
     "The public testnet has no DNS or fixed seeds and is not deployed; operators must manually connect nodes using -addnode until independent seed operators are running.",
-    "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry."
+    "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry.",
+    "Do not use this branch for real funds or launch a public network before public-testnet exercise and independent consensus/security review."
   ],
   "development_network": {
     "chain_argument": "-chain=carlitosregtest",

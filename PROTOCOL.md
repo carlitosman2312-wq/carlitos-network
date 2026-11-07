@@ -1,6 +1,6 @@
 # Carlitos Network (CRLTS)
 
-> Independent Bitcoin-style proof-of-work blockchain. Ubuntu 24.04 CI has passed the native build, consensus checks, local regtest node/wallet/mining/spend smoke test, and full CTest suite (373 passed, 1 skipped, 0 failed). Public testnet deployment and launch review remain pending.
+> Independent Bitcoin-style proof-of-work blockchain. Ubuntu 24.04 CI has passed the native build, consensus checks, two-node regtest P2P/wallet/mining/spend smoke test, and full CTest suite (373 passed, 1 skipped, 0 failed). Public testnet deployment and launch review remain pending.
 
 ## Status
 
@@ -11,8 +11,12 @@
 - Premine: none
 - Mainnet: not launched
 - Local development chain: carlitosregtest configured; its genesis and parameters pass native unit tests
-- Local runtime smoke test: passed on Ubuntu 24.04 CI (node startup, RPC, wallet, mining, maturity, and confirmed spend on carlitosregtest)
+- Local runtime smoke test: passed on Ubuntu 24.04 CI (two nodes connected; blocks and mempool transaction propagated; wallets, `rcrl` addresses, mining, 100-block maturity, and confirmed spend on `carlitosregtest`)
 - Windows host note: Application Control still blocks the rebuilt executables on that PC; the local security policy was not bypassed
+
+## Latest automated validation
+
+The current PR head, `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`, passed GitHub Actions on Ubuntu 24.04: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native validation tests (10 Boost cases); two-node regtest P2P/wallet/mining/maturity/confirmed-spend smoke test; and the full CTest suite (373 passed, 1 skipped, 0 failed out of 374 discovered). `descriptor_tests`, `bip324_tests`, and the data-directory isolation validation test passed. Native workflow run #46 and reference workflow run #40 passed. See `TEST_STATUS.md` for run links and launch blockers.
 
 ## Initial protocol parameters
 
@@ -47,7 +51,7 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 5. Validate block timestamps, median-time-past, future-time bounds, compact target encoding, proof-of-work limit, and difficulty transitions.
 6. Validate coinbase subsidy plus fees, transaction inputs/outputs, scripts, and inherited consensus rules.
 7. Use integer arithmetic; never use floating point for monetary values.
-8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. The CI smoke test verified an immature balance at height 100 and maturity at height 101 on carlitosregtest.
+8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. The two-node CI smoke test verified an immature balance at height 100, maturity at height 101, and a spend confirmed at height 103 on `carlitosregtest`.
 9. The genesis block has no spendable premine. Its timestamp, message, merkle root, nonce, and hash are set in the C++ parameters and checked by native unit tests.
 
 ## Proposed mainnet identity (not a launch approval)
@@ -84,7 +88,7 @@ A new SHA-256 PoW network is vulnerable if its honest hashrate is small or conce
 Before mainnet:
 - Adapt all inherited test vectors to the Carlitos network identity and consensus rules.
 - Run a supported-platform native build and the relevant test suite without unresolved failures.
-- Test node startup, RPC, wallet creation/recovery, block generation, coinbase maturity, sends, P2P, difficulty transitions, and reorganizations.
+- Two-node local regtest startup, RPC, wallets, block propagation, mempool relay, mining, coinbase maturity, and a confirmed spend are covered by CI. Still test public-testnet peer discovery, sustained mining, difficulty transitions, reorganizations, wallet backup/recovery, and operational monitoring.
 - Run a public testnet with independent nodes and miners.
 - Obtain independent security and consensus review.
 - Publish reproducible binaries, checksums, release notes, and operator documentation.
