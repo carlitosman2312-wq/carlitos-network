@@ -16,7 +16,7 @@
 
 ## Latest automated validation
 
-The current PR head, `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`, passed GitHub Actions on Ubuntu 24.04: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native validation tests (10 Boost cases); two-node regtest P2P/wallet/mining/maturity/confirmed-spend smoke test; and the full CTest suite (373 passed, 1 skipped, 0 failed out of 374 discovered). `descriptor_tests`, `bip324_tests`, and the data-directory isolation validation test passed. Native workflow run #46 and reference workflow run #40 passed. See `TEST_STATUS.md` for run links and launch blockers.
+The last fully validated consensus implementation commit, `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`, passed GitHub Actions on Ubuntu 24.04: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native validation tests (10 Boost cases); two-node regtest P2P/wallet/mining/maturity/confirmed-spend smoke test; and the full CTest suite (373 passed, 1 skipped, 0 failed out of 374 discovered). `descriptor_tests`, `bip324_tests`, and the data-directory isolation validation test passed. Native workflow run #46 and reference workflow run #40 passed. See `TEST_STATUS.md` for run links and launch blockers.
 
 ## Initial protocol parameters
 
@@ -53,6 +53,7 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 7. Use integer arithmetic; never use floating point for monetary values.
 8. Coinbase maturity is the inherited Bitcoin Core default of 100 blocks. The two-node CI smoke test verified an immature balance at height 100, maturity at height 101, and a spend confirmed at height 103 on `carlitosregtest`.
 9. The genesis block has no spendable premine. Its timestamp, message, merkle root, nonce, and hash are set in the C++ parameters and checked by native unit tests.
+10. The BIP94 timestamp guard is active from genesis on all Carlitos networks: the first block of each 2,016-block difficulty period cannot be timestamped more than 600 seconds behind its predecessor. On public testnet, retarget uses the first block's period difficulty so a minimum-difficulty block at the period end cannot reset the next period's baseline.
 
 ## Proposed mainnet identity (not a launch approval)
 
@@ -77,7 +78,7 @@ Thus, heights 1 through 500,000 receive 100 CRLTS; heights 500,001 through 1,000
 
 The genesis block was computed with zero coinbase value and SHA-256d proof of work. Its hash and parameters pass the Carlitos native unit test. The 0x1e00ffff target is 256 times easier than Bitcoin's historic 0x1d00ffff difficulty-1 target. This is a provisional bootstrap parameter, not evidence of resistance to a 51% attack. Public launch requires independent security review and meaningful, distributed hash power.
 
-The inherited testnet, testnet4, signet, and regtest modes remain Bitcoin networks, not Carlitos networks. Carlitos now has two separate development networks: `-chain=carlitostestnet` is a public-testnet parameter set (P2P 48444, RPC 48446, HRP `tcrl`, separate genesis, normal 10-minute retargeting with minimum-difficulty blocks allowed); `-chain=carlitosregtest` remains local instant-mining (P2P 38444, RPC 38446, HRP `rcrl`). The public-testnet parameters have no DNS/fixed seeds yet, so nodes must be connected manually with `-addnode` until independent seed operators are provisioned. These parameters are implemented and covered by C++ unit tests, but no public testnet nodes are deployed or running yet.
+The inherited testnet, testnet4, signet, and regtest modes remain Bitcoin networks, not Carlitos networks. Carlitos now has two separate development networks: `-chain=carlitostestnet` is a public-testnet parameter set (P2P 48444, RPC 48446, HRP `tcrl`, separate genesis, normal 10-minute retargeting with minimum-difficulty blocks allowed and BIP94 period-start difficulty anchoring); `-chain=carlitosregtest` remains local instant-mining (P2P 38444, RPC 38446, HRP `rcrl`). The public-testnet parameters have no DNS/fixed seeds yet, so nodes must be connected manually with `-addnode` until independent seed operators are provisioned. These parameters are implemented and covered by C++ unit tests, but no public testnet nodes are deployed or running yet.
 
 Mainnet BIP32 extended-key version bytes are now custom (043c524c public, 043c5350 private), preventing Carlitos mainnet exports from using Bitcoin's standard xpub/xprv version bytes. These custom values are provisional and not registered in SLIP-0132; obtain registry approval before promising compatibility with third-party wallets. No BIP44 coin type or canonical wallet derivation path is assigned yet. SLIP-0044 only adds a coin type when a wallet implementing BIP44 for the coin exists, so a compliant wallet/path plan must precede that registration. Independent DNS seed operators and a public testnet also remain outstanding.
 

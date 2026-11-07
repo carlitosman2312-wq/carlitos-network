@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "Ubuntu 24.04 CI passed on commit 95d6ff2f72c821c12f0f7a5e5c316828f1db60cf: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native validation_tests 10 Boost cases; default data-root and network directory isolation; two-node carlitosregtest P2P/block/mempool/wallet/mining/maturity/spend smoke; full CTest 373 passed, 1 skipped, 0 failed of 374 discovered; public launch and independent security review remain pending",
+  "consensus_status": "Last fully validated consensus implementation commit 95d6ff2f72c821c12f0f7a5e5c316828f1db60cf passed Ubuntu 24.04 native and reference CI; later config/generator/BIP94 hardening commits require fresh CI. Public launch and independent security review remain pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",
@@ -11,6 +11,8 @@
     "retarget_min_timespan_seconds": 302400,
     "retarget_max_timespan_seconds": 4838400,
     "allow_min_difficulty_blocks": false,
+    "bip94_timewarp_protection": true,
+    "bip94_period_start_retarget_anchor": false,
     "no_retargeting": false,
     "pow_limit_hex": "000000ffff000000000000000000000000000000000000000000000000000000",
     "initial_nbits_hex": "1e00ffff"
@@ -63,6 +65,8 @@
       "target_spacing_seconds": 600,
       "difficulty_adjustment_interval_blocks": 2016,
       "allow_min_difficulty_blocks": true,
+      "bip94_timewarp_protection": true,
+      "bip94_period_start_retarget_anchor": true,
       "no_retargeting": false,
       "dns_seeds": [],
       "deployed": false
@@ -76,6 +80,7 @@
     "The 0x1e00ffff proof-of-work target is 256 times easier than Bitcoin's historic difficulty-1 target and remains provisional; it is not a security guarantee.",
     "The inherited testnet, testnet4, signet, and regtest modes are still Bitcoin networks, not Carlitos test networks.",
     "The public testnet has no DNS or fixed seeds and is not deployed; operators must manually connect nodes using -addnode until independent seed operators are running.",
+    "BIP94 timewarp protection is enabled from genesis on all Carlitos chains; public-testnet retargets anchor to the period-start difficulty even if the final block used minimum difficulty.",
     "BIP32 extended-key serialization bytes are distinct for Carlitos mainnet, carlitostestnet, and carlitosregtest, but the provisional custom prefixes have not been registered with a wallet interoperability registry.",
     "Do not use this branch for real funds or launch a public network before public-testnet exercise and independent consensus/security review."
   ],
@@ -86,6 +91,7 @@
     "rpc_port": 38446,
     "bech32_hrp": "rcrl",
     "proof_of_work": "easy on-demand local development mining",
+    "bip94_timewarp_protection": true,
     "public_network": false,
     "base58_prefixes": {
       "pubkey_address": 29,

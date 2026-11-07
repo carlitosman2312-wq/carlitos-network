@@ -23,19 +23,22 @@ The full v32.1 source tree was fetched from the official upstream repository and
 - src/test/validation_tests.cpp: reward boundary, total issuance, mainnet parameter/genesis, and development-network tests.
 - .github/workflows/native-build.yml: Linux CI build and targeted native consensus smoke suite.
 
-## Local validation on 2026-11-06
+## Automated validation status (Ubuntu 24.04)
 
-- CMake configure: successful.
-- Native build: 601/601 steps successful. Built bitcoind.exe, bitcoin-cli.exe, bitcoin-wallet.exe, bitcoin.exe, and test_bitcoin.exe.
-- Python reference tests: 13/13 pass.
-- Native validation_tests: 8/8 pass.
-- Initial full CTest baseline (before fork-specific fixture adaptations): 95% passed, 14 failures, 1 skipped. Since that baseline, source fixtures for Carlitos address/WIF prefixes, money ceiling, RPC addresses, miner/regtest, PoW retarget vectors, transaction invalid cases, and zero minimum-chainwork have been updated and the native test binary recompiles. The full post-fix suite has not yet been rerun because Windows Application Control blocks the rebuilt test executable; Linux CI is pending. BIP324 cryptographic vector failures still require supported-platform reproduction. See TEST_STATUS.md.
-- Launching the daemon was blocked by Windows Application Control. No policy bypass was attempted, so RPC, wallet operations, P2P, and mined blocks have not been smoke-tested.
-- The integration branch and commits are pushed to GitHub. Draft PR #2 is open but not merged; the latest Linux Actions runs are queued, so their results are not yet available.
+The last fully validated consensus implementation is commit `95d6ff2f72c821c12f0f7a5e5c316828f1db60cf`:
+- Native build workflow #46 passed: https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325345
+- Python reference workflow #40 passed (13/13): https://github.com/carlitosman2312-wq/carlitos-network/actions/runs/42322325313
+- Targeted native `validation_tests`: 10 Boost cases passed.
+- Two-node `carlitosregtest` smoke: P2P connected, blocks and mempool transaction propagated, wallets/address generation worked, 100-block coinbase maturity verified, and a 1 CRLTS spend confirmed.
+- Full CTest: 374 discovered, 373 passed, 1 skipped (`script_assets_tests`), 0 failed.
+
+Follow-up commits in draft PR #2 add Carlitos testnet/regtest config-section recognition, generated `carlitos.conf`, CLI help/port coverage, and BIP94 timewarp/retarget hardening. Those follow-ups require a fresh native CI pass before being considered validated. The BIP94 changes do not alter genesis hashes, subsidy, halving, proof-of-work limit, or block reward schedule.
+
+The connected Windows PC built all 601 native build steps but Windows Application Control blocked launching the rebuilt executables. This local policy was not bypassed; Ubuntu CI provides the runtime execution evidence above.
 
 ## Remaining engineering work before public use
 
-1. Run the adapted full C++ suite on Linux CI, verify the chain-aware test fixture changes, and fix any remaining failures (notably the BIP324 crypto-vector suite if reproducible).
+1. Keep the latest config/generator/BIP94 follow-up commits under native Linux CI, including the new BIP94 retarget regression case and full CTest suite.
 2. Obtain a trusted build environment where the node executable is permitted to run; test startup, RPC, wallet creation, block generation, coinbase maturity, sends, P2P, reorganizations, restart, and recovery.
 3. Mainnet BIP32 extended-key bytes are now distinct (043c524c / 043c5350) and their vectors were migrated, but those custom bytes are provisional and need SLIP-0132 registration. Design a compatible wallet derivation scheme, implement a BIP44-capable wallet path if desired, then request a SLIP-0044 coin type; verify imports cannot confuse Bitcoin and Carlitos keys.
 4. Deploy multiple independent `carlitostestnet` nodes, register DNS seed operators, and validate cross-operator mining, retargeting, reorgs, and wallet interoperability.
