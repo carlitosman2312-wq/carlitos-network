@@ -241,6 +241,35 @@ BOOST_AUTO_TEST_CASE(util_ParseParameters)
     BOOST_CHECK(testArgs.GetArgs("-ccc").size() == 2);
 }
 
+BOOST_AUTO_TEST_CASE(util_GetUnrecognizedSections)
+{
+    TestArgsManager test;
+    test.SetupArgs({{"-server", ArgsManager::ALLOW_ANY}});
+    test.ReadConfigString(
+        "[main]\n"
+        "server=1\n"
+        "[test]\n"
+        "server=1\n"
+        "[testnet4]\n"
+        "server=1\n"
+        "[signet]\n"
+        "server=1\n"
+        "[regtest]\n"
+        "server=1\n"
+        "[carlitostestnet]\n"
+        "server=1\n"
+        "[carlitosregtest]\n"
+        "server=1\n"
+        "[bitcoin-main-test]\n"
+        "server=1\n"
+        "[unknown]\n"
+        "server=1\n");
+
+    const auto unrecognized = test.GetUnrecognizedSections();
+    BOOST_REQUIRE_EQUAL(unrecognized.size(), 1U);
+    BOOST_CHECK_EQUAL(unrecognized.front().m_name, "unknown");
+}
+
 BOOST_AUTO_TEST_CASE(util_ParseInvalidParameters)
 {
     TestArgsManager test;
