@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
+#include <chainparamsbase.h>
 #include <consensus/amount.h>
 #include <consensus/merkle.h>
 #include <core_io.h>
@@ -74,6 +75,19 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
     BOOST_CHECK_EQUAL(nSum, CAmount{9999999959000000});
 }
 
+
+BOOST_AUTO_TEST_CASE(carlitos_chain_data_directories_are_isolated)
+{
+    const auto mainnet = CreateBaseChainParams(ChainType::MAIN);
+    const auto testnet = CreateBaseChainParams(ChainType::CARLITOS_TESTNET);
+    const auto regtest = CreateBaseChainParams(ChainType::CARLITOS_REGTEST);
+
+    // Empty data-dir suffix means the platform's Bitcoin Core default directory.
+    // Carlitos mainnet must use its own subdirectory to avoid opening Bitcoin data.
+    BOOST_CHECK_EQUAL(mainnet->DataDir(), "carlitos");
+    BOOST_CHECK_EQUAL(testnet->DataDir(), "carlitostestnet");
+    BOOST_CHECK_EQUAL(regtest->DataDir(), "carlitosregtest");
+}
 
 BOOST_AUTO_TEST_CASE(carlitos_mainnet_parameters_test)
 {
