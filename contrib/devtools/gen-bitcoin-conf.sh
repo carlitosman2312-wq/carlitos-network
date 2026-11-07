@@ -49,7 +49,9 @@ EOF
 # parse the output from bitcoind --help
 # adding newlines is a bit funky to ensure portability for BSD
 # see here for more details: https://stackoverflow.com/a/24575385
-${BITCOIND} --help \
+# Some builds return a non-zero status after printing the requested help text.
+# Preserve the help output so the generator does not fail solely on that status.
+( "${BITCOIND}" --help || true ) \
     | sed '1,/Options:/d' \
     | sed -E '/^[[:space:]]{2}-help/,/^[[:space:]]*$/d' \
     | sed -E 's/^[[:space:]]{2}\-/#/' \
