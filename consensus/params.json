@@ -1,7 +1,7 @@
 {
   "network": "Carlitos Network",
   "ticker": "CRLTS",
-  "consensus_status": "native C++ build passed; Carlitos mainnet, testnet, and regtest parameter/genesis test code compiles; Python reference tests 13/13 passed; Linux node runtime smoke and full CTest results pending",
+  "consensus_status": "Ubuntu 24.04 CI passed on commit cea5d19206e3b98475d077e8a7361b3c96d0dd1a: native node/CLI/wallet/test build; Python reference tests 13/13; targeted native consensus tests; local carlitosregtest node-wallet-mining-maturity-spend smoke; full CTest 373 passed, 1 skipped, 0 failed of 374 discovered; public launch and independent security review remain pending",
   "consensus": {
     "type": "proof-of-work",
     "hash_algorithm": "SHA-256",
