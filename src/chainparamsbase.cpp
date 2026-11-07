@@ -41,8 +41,8 @@ std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const ChainType chain)
 {
     switch (chain) {
     case ChainType::MAIN:
-        // Keep Carlitos' default mainnet data separate from Bitcoin Core's default datadir.
-        return std::make_unique<CBaseChainParams>("carlitos", 28446);
+        // Use the Carlitos-specific GetDefaultDataDir() root without another suffix.
+        return std::make_unique<CBaseChainParams>("", 28446);
     case ChainType::TESTNET:
         return std::make_unique<CBaseChainParams>("testnet3", 18332);
     case ChainType::TESTNET4:
